@@ -9,12 +9,12 @@ import sys
 import random
 import math
 
-import pyorient
+#import pyorient
 
 from Queue import Queue
 
-from sklearn import preprocessing
-from sklearn import svm
+#from sklearn import preprocessing
+#from sklearn import svm
 
 import numpy as np
 import os
