@@ -14,12 +14,12 @@ html, body, {
 	height: 80%;
 }
 
-rect {
+rect.marker {
 	fill-opacity: .6;
 	/*fill: red;*/
 	stroke-width: 0px;
 }
-rect:hover {
+rect.marker:hover {
 	stroke: black;
 	stroke-width: 2px;
 	cursor: crosshair;

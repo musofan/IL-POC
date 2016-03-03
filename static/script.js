@@ -145,7 +145,8 @@ function updateData(){
 			.on("mouseout", function(){
 				tooltip.style("visibility", "hidden");
 			})
-			// .attr("fill", function(d) { return "hsl(" + Math.floor((1-d.properties.priceNorm)*250) + ", 100%, 50%)"; })
+			.attr("class", "marker")
+    		.attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
 		;
 
 		// call function to update geometry
@@ -201,7 +202,6 @@ function updateData(){
 				.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
 				.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
 				.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
-    			.attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
 				;
 		};
 	});
