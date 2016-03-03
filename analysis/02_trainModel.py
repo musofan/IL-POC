@@ -25,6 +25,7 @@ with open(workingDirectory + "\\dashilar_dataForModel.pkl", 'rb') as f:
 print "dataset loaded [" + str(int(time.time() - start_time)) + " sec]"
 
 random.shuffle(dataSet)
+dataSet = dataSet[:10000] #limit dataset
 
 # column reference in dataset
 # 0 - id
@@ -80,12 +81,15 @@ rs_max = 0
 
 # iterate over range of 'C' variable
 for C in [1, 100, 10000]:
+# for C in [1]:
 
 	# iterate over range of 'e' variable
 	for e in [.0001, .01, 1]:
+	# for e in [1]:
 
 			# iterate over range of 'g' variable
 			for g in [.01, 1, 100]:
+			# for g in [1]:
 
 				start_time = time.time()
 

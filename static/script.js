@@ -36,8 +36,14 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_toke
 // var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
 // var g_overlay = svg_overlay.append("g").attr("class", "leaflet-zoom-hide");
 
+// white overlay
+// circles
+// semantic ui
+
 var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+
 
 function projectPoint(lat, lng) {
 	return map.latLngToLayerPoint(new L.LatLng(lat, lng));
@@ -146,10 +152,13 @@ function updateData(){
 		    g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
 		    // update circle position and size
+		    console.log(Math.floor((4.0/3)*250))
 		    circles
 		    	.attr("cx", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
 		    	.attr("cy", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-    			.attr("r", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; });
+    			.attr("r", function(d) { return Math.pow(d.properties.countNorm,.2) * 20; })
+    			.attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
+    			;
 		};
 	});
 
