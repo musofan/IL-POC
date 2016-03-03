@@ -64,7 +64,7 @@ function toggleMap(){
 				.attr("width",20)
 				.attr("y", function(d) { return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight});
 
-		}else{
+		} else{
 			svg_overlay.attr("visibility", "hidden");
 			mapVisible = true;
 
@@ -78,7 +78,7 @@ function toggleMap(){
 		}
 	if (semanticVisible == true){
 		}
-}
+	}
 }
 
 // circles
@@ -170,6 +170,13 @@ function updateData(){
     		.attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
 		;
 
+		markers
+    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+					.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
+					.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
+		;
+
 		// call function to update geometry
 		update();
 		map.on("viewreset", update);
@@ -218,11 +225,13 @@ function updateData(){
 
 		    markers
 		    	.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
-		    	.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-					.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
-					.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
+		    	.attr("y", function(d) { if (mapVisible == true){
+							return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;}
+							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
+//    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+//					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+//					.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
+//					.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
 				;
 		};
 	});
