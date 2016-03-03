@@ -127,12 +127,12 @@ function updateData(){
   	d3.json(request, function(data) {
 
 		//create placeholder circle geometry and bind it to data
-		var circles = g.selectAll("circle").data(data.features);
+		var markers = g.selectAll("rect").data(data.features);
 
 		console.log(data);
 
-		circles.enter()
-			.append("circle")
+		markers.enter()
+			.append("rect")
 			.on("mouseover", function(d){
 				tooltip.style("visibility", "visible");
 				tooltip_title.text(d.properties.name);
@@ -194,13 +194,15 @@ function updateData(){
 
 		    g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
-		    // update circle position and size
-		    circles
-		    	.attr("cx", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
-		    	.attr("cy", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-    			.attr("r", function(d) { return Math.pow(d.properties.countNorm,.2) * 20; })
+		    markers
+		    	.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
+		    	.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
+    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+				.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+				.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
+				.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
     			.attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
-    			;
+				;
 		};
 	});
 
