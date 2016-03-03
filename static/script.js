@@ -51,6 +51,8 @@ svg_overlay.append("rect")
 	;
 
 function toggleMap(){
+	var toggleHeight = window.innerHeight;
+
 	if (semanticVisible == false){
 		if (mapVisible == true){
 			svg_overlay.attr("visibility", "visible");
@@ -62,7 +64,7 @@ function toggleMap(){
 				.attr("rx",0)
 				.attr("ry",0)
 				.attr("width",20)
-				.attr("y", function(d) { return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight});
+				.attr("y", function(d) { return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight});
 
 		} else{
 			svg_overlay.attr("visibility", "hidden");
@@ -227,7 +229,8 @@ function updateData(){
 		    	.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
 		    	.attr("y", function(d) { if (mapVisible == true){
 							return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;}
-							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
+//							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
+							else {return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight}})
 //    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
 //					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
 //					.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
