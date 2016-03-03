@@ -73,12 +73,12 @@ def getData():
 	# lat2 = str(request.args.get('lat2'))
 	# lng2 = str(request.args.get('lng2'))
 
-	w = float(request.args.get('w'))
-	h = float(request.args.get('h'))
-	cell_size = float(request.args.get('cell_size'))
+	# w = float(request.args.get('w'))
+	# h = float(request.args.get('h'))
+	# cell_size = float(request.args.get('cell_size'))
 
-	analysis = request.args.get('analysis')
-	analysisType = request.args.get('analysisType')
+	# analysis = request.args.get('analysis')
+	# analysisType = request.args.get('analysisType')
 
 	#CAPTURE ANY ADDITIONAL ARGUMENTS SENT FROM THE CLIENT HERE
 

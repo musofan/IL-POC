@@ -13,7 +13,7 @@ var tooltip_title = d3.select("#title");
 var tooltip_count = d3.select("#price");
 
 
-var map = L.map('map').setView([39.8938, 116.384390666], 16);
+var map = L.map('map').setView([39.8934, 116.384390666], 16);
 
 //this is the OpenStreetMap tile implementation
 
@@ -31,18 +31,59 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_toke
 
 //create variables to store a reference to svg and g elements
 
-
-
-// var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
-// var g_overlay = svg_overlay.append("g").attr("class", "leaflet-zoom-hide");
-
 // white overlay
+
+var mapVisible = true;
+
+var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
+
+svg_overlay.attr("width", "10000px")
+	.attr("height", "10000px")
+	.style("left", "-1000px")
+	.style("top", "-1000px")
+	.attr("visibility", "hidden") // toggle this value to turn map on and off
+	;
+
+svg_overlay.append("rect")
+	.attr("class", "map_overlay")
+	.attr("width", "100%")
+	.attr("height", "100%")
+	;
+
+function toggleMap(){
+	if (mapVisible == true){
+		svg_overlay.attr("visibility", "visible");
+		mapVisible = false;
+	}else{
+		svg_overlay.attr("visibility", "hidden");
+		mapVisible = true;
+	}
+}
+
 // circles
-// semantic ui
 
 var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
+// slider
+
+var div_slider = d3.select("body").append("div").attr("class", "slider");
+
+// semantic ui
+
+var semanticVisible = false;
+
+var div_semanticUI = d3.select("body").append("div").attr("class", "semantic").style("visibility", "hidden");
+
+function toggleSemantic(){
+	if (semanticVisible == true){
+		div_semanticUI.style("visibility", "hidden");
+		semanticVisible = false;
+	}else{
+		div_semanticUI.style("visibility", "visible");
+		semanticVisible = true;
+	}
+}
 
 
 function projectPoint(lat, lng) {
@@ -71,13 +112,15 @@ function updateData(){
 	var h = window.innerHeight;
 
 	// CAPTURE USER INPUT FOR ANALYSIS TYPE SELECTION
-	var checked = document.getElementById("showOverlay").checked;
+	// var checked = document.getElementById("showOverlay").checked;
 
-	var list = document.getElementById("typeSelection");
-	var choice = list.options[list.selectedIndex].value;
+	// var list = document.getElementById("typeSelection");
+	// var choice = list.options[list.selectedIndex].value;
 
 	// SEND USER CHOICES FOR ANALYSIS TYPE, CELL SIZE, HEAT MAP SPREAD, ETC. TO SERVER
-	request = "/getData?lat1=" + lat1 + "&lat2=" + lat2 + "&lng1=" + lng1 + "&lng2=" + lng2 + "&w=" + w + "&h=" + h + "&cell_size=" + cell_size + "&analysis=" + checked + "&analysisType=" + choice
+	// request = "/getData?lat1=" + lat1 + "&lat2=" + lat2 + "&lng1=" + lng1 + "&lng2=" + lng2 + "&w=" + w + "&h=" + h + "&cell_size=" + cell_size + "&analysis=" + checked + "&analysisType=" + choice
+
+	request = "/getData"
 
 	console.log(request);
 
@@ -152,7 +195,6 @@ function updateData(){
 		    g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
 		    // update circle position and size
-		    console.log(Math.floor((4.0/3)*250))
 		    circles
 		    	.attr("cx", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
 		    	.attr("cy", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })

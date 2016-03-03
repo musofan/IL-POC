@@ -20,22 +20,18 @@
 		<p class="tooltip-text" id="price">This is the price</p>
 	</div>
 
+	<!-- import external script -->
+	<script type="text/javascript" src="./static/script.js"></script>
+
 	<div class="menu">
 		<p><h4>Impact Learning</h4></p>
 		<form>
 			<!-- IMPLEMENT NEW USER INTERFACE ELEMENTS HERE -->
-			<p><select id="typeSelection">
-				<option value="heatmap">Heat map</option>
-				<option value="interp">Interpolation</option>
-			</select></p>
-			<p><input id="showOverlay" type="checkbox" checked>Show overlay</p>
-			<p><input type="button" value="Update Data" onclick="updateData()"></p>
+			<p><input type="button" value="Map" onclick="toggleMap()"></p>
+			<p><input type="button" value="Semantic" onclick="toggleSemantic()"></p>
 			<p>Status: <em id="message"></em></p>
 		</form>
 	</div>
-
-	<!-- import external script -->
-	<script type="text/javascript" src="./static/script.js"></script>
 
 
 </body>
