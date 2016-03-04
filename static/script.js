@@ -8,6 +8,18 @@
 // 	eventOutputContainer.innerHTML = e.data;
 // };
 
+var categories = {
+0: "Outside study area",
+1: "Retail",
+2: "Food and beverage",
+3: "Attraction",
+4: "Other business",
+5: "Specific place",
+6: "General region",
+};
+
+var sizeFactor = .2;
+
 var tooltip = d3.select("div.tooltip");
 var tooltip_title = d3.select("#title");
 var tooltip_count = d3.select("#price");
@@ -159,7 +171,7 @@ function updateData(){
 			.on("mouseover", function(d){
 				tooltip.style("visibility", "visible");
 				tooltip_title.text(d.properties.name);
-				tooltip_count.text("count: " + d.properties.count);
+				tooltip_count.text(categories[d.properties.cat]);
 			})
 			.on("mousemove", function(){
 				tooltip.style("top", (d3.event.pageY-10)+"px")
@@ -169,14 +181,15 @@ function updateData(){
 				tooltip.style("visibility", "hidden");
 			})
 			.attr("class", "marker")
-    		.attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
+    		// .attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
+    		.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
 
 		markers
-    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-					.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
-					.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
+    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+					.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
+					.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
 		;
 
 		// call function to update geometry
@@ -231,10 +244,6 @@ function updateData(){
 							return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;}
 //							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
 							else {return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight}})
-//    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-//					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-//					.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
-//					.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
 				;
 		};
 	});
