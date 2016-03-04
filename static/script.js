@@ -8,6 +8,11 @@
 // 	eventOutputContainer.innerHTML = e.data;
 // };
 
+//FOR TEMP SLIDER THIS UPDATES THE VALUE DISPLAY ONLY
+function sliderUpdate(week) {
+	document.querySelector('#weekSelected').value = week;
+}
+
 var categories = {
 0: "Outside study area",
 1: "Retail",
@@ -61,6 +66,19 @@ svg_overlay.append("rect")
 	.attr("width", "100%")
 	.attr("height", "100%")
 	;
+
+	function updateMarkersBySlider(week){
+		document.querySelector('#weekSelected').value = week
+		var weekIndex = week
+		console.log(weekIndex)
+
+		if (mapVisible == false){
+			g.selectAll("rect")
+				.transition()
+				.duration(500)
+				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]; });
+	} else{}
+};
 
 function toggleMap(){
 	var toggleHeight = window.innerHeight;
@@ -189,8 +207,7 @@ function updateData(){
     			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
 					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
 					.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
-					.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
-		;
+					.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; });
 
 		// call function to update geometry
 		update();
@@ -243,11 +260,10 @@ function updateData(){
 		    	.attr("y", function(d) { if (mapVisible == true){
 							return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;}
 //							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
-							else {return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight}})
-				;
+							else {return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight}
+		});
 		};
 	});
-
 };
 
 updateData();
