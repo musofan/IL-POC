@@ -8,11 +8,6 @@
 // 	eventOutputContainer.innerHTML = e.data;
 // };
 
-//FOR TEMP SLIDER THIS UPDATES THE VALUE DISPLAY ONLY
-function sliderUpdate(week) {
-	document.querySelector('#weekSelected').value = week;
-}
-
 var categories = {
 0: "Outside study area",
 1: "Retail",
@@ -67,17 +62,17 @@ svg_overlay.append("rect")
 	.attr("height", "100%")
 	;
 
-	function updateMarkersBySlider(week){
+//adjusts markers by slider
+function updateMarkersBySlider(week){
 		document.querySelector('#weekSelected').value = week
 		var weekIndex = week
-		console.log(weekIndex)
 
 		if (mapVisible == false){
 			g.selectAll("rect")
 				.transition()
 				.duration(500)
 				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]; });
-	} else{
+			} else{
 			g.selectAll("rect")
 				.transition()
 				.duration(500)
@@ -85,11 +80,11 @@ svg_overlay.append("rect")
 				.attr("width", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
 				.attr("rx", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
 				.attr("ry", function(d) { return d.properties.weeklyCounts[weekIndex]*2; });
-	}
+			}
 };
 
 function toggleMap(){
-	var toggleHeight = window.innerHeight;
+	var toggleHeight = window.innerHeight
 
 	if (semanticVisible == false){
 		if (mapVisible == true){
@@ -268,8 +263,7 @@ function updateData(){
 		    	.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
 		    	.attr("y", function(d) { if (mapVisible == true){
 							return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;}
-//							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
-							else {return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight}
+							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight}
 		});
 		};
 	});
