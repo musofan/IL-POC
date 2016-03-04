@@ -29,7 +29,7 @@ for entry in entries:
 	features = entry.split(delim)
 	place_id = features[0]
 
-	placesData[place_id] = {'lat': features[15], 'lng': features[16], 'cat': features[5]}
+	placesData[place_id] = {'lat': features[15], 'lng': features[16], 'cat': features[5], 'title': features[6], 'count': features[21]}
 
 	# GET WEIBO DATA
 	poiids = [features[1], features[2]]
@@ -132,11 +132,11 @@ print "number of places:", len(counts.keys())
 
 
 
-dataSet = "ID;lat;lng;cat;time\n"
+dataSet = "ID;title;cat;lat;lng;count;time\n"
 
 for _id in ids:
 
-	s = ";".join([_id, placesData[_id]['lat'], placesData[_id]['lng'], placesData[_id]['cat']])
+	s = ";".join([_id, placesData[_id]['title'], placesData[_id]['cat'], placesData[_id]['lat'], placesData[_id]['lng'], placesData[_id]['count']])
 
 	timeSet = [0] * 54
 
@@ -157,5 +157,5 @@ print "number of datapoints:", len(dataSet.split("\n"))
 # print dataSet[0]
 
 
-with open(workingDirectory + "\\dashilar_dataWithTime.txt", 'wb') as f:
+with open(workingDirectory + "\\dashilar_data.txt", 'wb') as f:
 	f.write(dataSet)

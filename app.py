@@ -106,7 +106,7 @@ def getData():
 
 	# client.db_close()
 
-	fileName = "dashilar.txt"
+	fileName = "dashilar_data.txt"
 
 	with open(currentDirectory +  "analysis\\" + fileName, 'r') as f:
 		records = f.readlines()
@@ -122,7 +122,7 @@ def getData():
 
 	for record in records:
 		features = record.split(';')
-		count = int(features[titles.index('combined_count')])
+		count = int(features[titles.index('count')])
 
 		if count > maxCount:
 			maxCount = count
@@ -138,12 +138,12 @@ def getData():
 		features = record.split(';')
 		point = {"type":"Feature","properties":{},"geometry":{"type":"Point"}}
 		point["id"] = features[titles.index('ID')]
-		point["properties"]["name"] = features[titles.index('weibo_title')]
-		point["properties"]["address"] = features[titles.index('address')]
-		point["properties"]["cat"] = features[titles.index('category')]
-		point["properties"]["count"] = features[titles.index('combined_count')]
-		point["properties"]["countNorm"] = remap(features[titles.index('combined_count')], minCount, maxCount, 0, 1)
-		point["geometry"]["coordinates"] = [float(features[titles.index('lat_wgs')]), float(features[titles.index('lng_wgs')])]
+		point["properties"]["name"] = features[titles.index('title')]
+		point["properties"]["cat"] = features[titles.index('cat')]
+		point["properties"]["count"] = features[titles.index('count')]
+		point["properties"]["countNorm"] = remap(features[titles.index('count')], minCount, maxCount, 0, 1)
+		point["properties"]["weeklyCounts"] = features[6:]
+		point["geometry"]["coordinates"] = [float(features[titles.index('lat')]), float(features[titles.index('lng')])]
 
 		output["features"].append(point)
 

@@ -8,6 +8,18 @@
 // 	eventOutputContainer.innerHTML = e.data;
 // };
 
+var categories = {
+0: "Outside study area",
+1: "Retail",
+2: "Food and beverage",
+3: "Attraction",
+4: "Other business",
+5: "Specific place",
+6: "General region",
+};
+
+
+
 var tooltip = d3.select("div.tooltip");
 var tooltip_title = d3.select("#title");
 var tooltip_count = d3.select("#price");
@@ -136,7 +148,7 @@ function updateData(){
 			.on("mouseover", function(d){
 				tooltip.style("visibility", "visible");
 				tooltip_title.text(d.properties.name);
-				tooltip_count.text("category: " + d.properties.cat);
+				tooltip_count.text(categories[d.properties.cat]);
 			})
 			.on("mousemove", function(){
 				tooltip.style("top", (d3.event.pageY-10)+"px")
