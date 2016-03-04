@@ -18,7 +18,7 @@ var categories = {
 6: "General region",
 };
 
-
+var sizeFactor = .2;
 
 var tooltip = d3.select("div.tooltip");
 var tooltip_title = d3.select("#title");
@@ -211,10 +211,10 @@ function updateData(){
 		    markers
 		    	.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
 		    	.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-				.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-				.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
-				.attr("height", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; })
+    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+				.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+				.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
+				.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
 				;
 		};
 	});
