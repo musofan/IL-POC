@@ -63,12 +63,35 @@ svg_overlay.append("rect")
 	;
 
 function toggleMap(){
-	if (mapVisible == true){
-		svg_overlay.attr("visibility", "visible");
-		mapVisible = false;
-	}else{
-		svg_overlay.attr("visibility", "hidden");
-		mapVisible = true;
+	var toggleHeight = window.innerHeight;
+
+	if (semanticVisible == false){
+		if (mapVisible == true){
+			svg_overlay.attr("visibility", "visible");
+			mapVisible = false;
+
+				g.selectAll("rect")
+				.transition()
+				.duration(1000)
+				.attr("rx",0)
+				.attr("ry",0)
+				.attr("width",20)
+				.attr("y", function(d) { return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight});
+
+		} else{
+			svg_overlay.attr("visibility", "hidden");
+			mapVisible = true;
+
+			g.selectAll("rect")
+			.transition()
+			.duration(1000)
+			.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
+			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
+			.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; });
+		}
+	if (semanticVisible == true){
+		}
 	}
 }
 
@@ -162,6 +185,13 @@ function updateData(){
     		.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
 
+		markers
+    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+					.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
+					.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
+		;
+
 		// call function to update geometry
 		update();
 		map.on("viewreset", update);
@@ -170,7 +200,7 @@ function updateData(){
 
 		// 	var topleft = projectPoint(lat2, lng1);
 
-		// 	svg_overlay.attr("width", w) 
+		// 	svg_overlay.attr("width", w)
 		// 		.attr("height", h)
 		// 		.style("left", topleft.x + "px")
 		// 		.style("top", topleft.y + "px");
@@ -185,7 +215,7 @@ function updateData(){
 		// 		.attr("height", function(d) { return d.height; })
 		//     	.attr("fill-opacity", ".2")
 		//     	.attr("fill", function(d) { return "hsl(" + Math.floor((1-d.value)*250) + ", 100%, 50%)"; });
-		
+
 		// };
 
 		// function to update the data
@@ -210,11 +240,10 @@ function updateData(){
 
 		    markers
 		    	.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
-		    	.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
-				.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
-				.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
-				.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
+		    	.attr("y", function(d) { if (mapVisible == true){
+							return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;}
+//							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
+							else {return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight}})
 				;
 		};
 	});

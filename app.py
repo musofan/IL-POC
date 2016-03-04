@@ -83,7 +83,7 @@ def getData():
 	#CAPTURE ANY ADDITIONAL ARGUMENTS SENT FROM THE CLIENT HERE
 
 	# print "received coordinates: [" + lat1 + ", " + lat2 + "], [" + lng1 + ", " + lng2 + "]"
-	
+
 	# client = pyorient.OrientDB("localhost", 2424)
 	# session_id = client.connect("root", "password")
 	# db_name = "soufun"
