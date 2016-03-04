@@ -77,7 +77,15 @@ svg_overlay.append("rect")
 				.transition()
 				.duration(500)
 				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]; });
-	} else{}
+	} else{
+			g.selectAll("rect")
+				.transition()
+				.duration(500)
+				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
+				.attr("width", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
+				.attr("rx", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
+				.attr("ry", function(d) { return d.properties.weeklyCounts[weekIndex]*2; });
+	}
 };
 
 function toggleMap(){
