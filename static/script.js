@@ -106,7 +106,8 @@ function toggleMap(){
 			.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
 			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
 			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
-			.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; });
+			.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
+			.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; });
 		}
 	if (semanticVisible == true){
 		}
