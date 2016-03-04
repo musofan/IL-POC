@@ -76,7 +76,7 @@ function toggleMap(){
 				.attr("rx",0)
 				.attr("ry",0)
 				.attr("width",20)
-				.attr("y", function(d) { return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight});
+				.attr("y", function(d) { return toggleHeight - Math.pow(d.properties.countNorm,sizeFactor)* toggleHeight});
 
 		} else{
 			svg_overlay.attr("visibility", "hidden");
@@ -86,9 +86,9 @@ function toggleMap(){
 			.transition()
 			.duration(1000)
 			.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,.1) * 20; })
-			.attr("width", function(d) { return Math.pow(d.properties.countNorm,.1) * 20*2; });
+			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
+			.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; });
 		}
 	if (semanticVisible == true){
 		}
