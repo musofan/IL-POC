@@ -108,7 +108,7 @@ def getData():
 
 	fileName = "dashilar.txt"
 
-	with open(currentDirectory +  "data\\" + fileName, 'r') as f:
+	with open(currentDirectory +  "analysis\\" + fileName, 'r') as f:
 		records = f.readlines()
 		records = [x.strip() for x in records]
 		titles = records.pop(0).split(';')
@@ -140,7 +140,7 @@ def getData():
 		point["id"] = features[titles.index('ID')]
 		point["properties"]["name"] = features[titles.index('weibo_title')]
 		point["properties"]["address"] = features[titles.index('address')]
-		point["properties"]["cat"] = features[titles.index('cat')]
+		point["properties"]["cat"] = features[titles.index('category')]
 		point["properties"]["count"] = features[titles.index('combined_count')]
 		point["properties"]["countNorm"] = remap(features[titles.index('combined_count')], minCount, maxCount, 0, 1)
 		point["geometry"]["coordinates"] = [float(features[titles.index('lat_wgs')]), float(features[titles.index('lng_wgs')])]

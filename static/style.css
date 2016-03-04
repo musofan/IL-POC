@@ -15,7 +15,7 @@ html, body, {
 }
 
 rect.marker {
-	fill-opacity: .6;
+	fill-opacity: .8;
 	/*fill: red;*/
 	stroke-width: 0px;
 }

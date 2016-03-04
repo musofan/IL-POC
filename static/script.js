@@ -136,7 +136,7 @@ function updateData(){
 			.on("mouseover", function(d){
 				tooltip.style("visibility", "visible");
 				tooltip_title.text(d.properties.name);
-				tooltip_count.text("count: " + d.properties.count);
+				tooltip_count.text("category: " + d.properties.cat);
 			})
 			.on("mousemove", function(){
 				tooltip.style("top", (d3.event.pageY-10)+"px")
@@ -146,7 +146,8 @@ function updateData(){
 				tooltip.style("visibility", "hidden");
 			})
 			.attr("class", "marker")
-    		.attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
+    		// .attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
+    		.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
 
 		// call function to update geometry
