@@ -31,14 +31,6 @@ var topLeft = [0,0], bottomRight = [0,0];
 
 var map = L.map('map').setView([39.8934, 116.384390666], 16);
 
-//this is the OpenStreetMap tile implementation
-
-// L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-// 	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-// }).addTo(map);
-
-//uncomment for Mapbox implementation, and supply your own access token
-
 L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_token={accessToken}', {
 	attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
 	mapid: 'mapbox.light',
@@ -50,8 +42,6 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_toke
 // white overlay
 
 var mapVisible = true;
-
-
 
 var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
 
@@ -83,10 +73,18 @@ function updateMarkersBySlider(week){
 			g.selectAll("rect")
 				.transition()
 				.duration(500)
-				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
-				.attr("width", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
-				.attr("rx", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
-				.attr("ry", function(d) { return d.properties.weeklyCounts[weekIndex]*2; });
+				.attr("x", function(d) { 
+					var size = Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin;
+					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2; 
+				})
+				.attr("y", function(d) { 
+					var size = Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin;
+					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2; 
+				})
+				.attr("height", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
+				.attr("width", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
+				.attr("rx", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
+				.attr("ry", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; });
 			}
 };
 
@@ -168,32 +166,11 @@ var path = d3.geo.path().projection(transform);
 
 function updateData(){
 
-	// var mapBounds = map.getBounds();
-	// var lat1 = mapBounds["_southWest"]["lat"];
-	// var lat2 = mapBounds["_northEast"]["lat"];
-	// var lng1 = mapBounds["_southWest"]["lng"];
-	// var lng2 = mapBounds["_northEast"]["lng"];
-
-	// // CAPTURE USER INPUT FOR CELL SIZE FROM HTML ELEMENTS
-	// var cell_size = 25;
-	// var w = window.innerWidth;
-	// var h = window.innerHeight;
-
-	// CAPTURE USER INPUT FOR ANALYSIS TYPE SELECTION
-	// var checked = document.getElementById("showOverlay").checked;
-
-	// var list = document.getElementById("typeSelection");
-	// var choice = list.options[list.selectedIndex].value;
-
-	// SEND USER CHOICES FOR ANALYSIS TYPE, CELL SIZE, HEAT MAP SPREAD, ETC. TO SERVER
-	// request = "/getData?lat1=" + lat1 + "&lat2=" + lat2 + "&lng1=" + lng1 + "&lng2=" + lng2 + "&w=" + w + "&h=" + h + "&cell_size=" + cell_size + "&analysis=" + checked + "&analysisType=" + choice
-
 	request = "/getData"
 
 	console.log(request);
 
 	d3.json(request, function(data) {
-
 
 		//create placeholder circle geometry and bind it to data
 		var markers = g.selectAll("rect").data(data.features);
@@ -215,7 +192,6 @@ function updateData(){
 				tooltip.style("visibility", "hidden");
 			})
 			.attr("class", "marker")
-			// .attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
 			.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
 
@@ -226,32 +202,9 @@ function updateData(){
 				.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
 		;
 
-
 		// call function to update geometry
 		update();
 		map.on("viewreset", update);
-
-		// if (checked == true){
-
-		// 	var topleft = projectPoint(lat2, lng1);
-
-		// 	svg_overlay.attr("width", w)
-		// 		.attr("height", h)
-		// 		.style("left", topleft.x + "px")
-		// 		.style("top", topleft.y + "px");
-
-		// 	var rectangles = g_overlay.selectAll("rect").data(data.analysis);
-		// 	rectangles.enter().append("rect");
-
-		// 	rectangles
-		// 		.attr("x", function(d) { return d.x; })
-		// 		.attr("y", function(d) { return d.y; })
-		// 		.attr("width", function(d) { return d.width; })
-		// 		.attr("height", function(d) { return d.height; })
-		//     	.attr("fill-opacity", ".2")
-		//     	.attr("fill", function(d) { return "hsl(" + Math.floor((1-d.value)*250) + ", 100%, 50%)"; });
-
-		// };
 
 		// function to update the data
 		function update() {
@@ -274,13 +227,19 @@ function updateData(){
 			g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
 			markers
-				.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
-				.attr("y", function(d) { if (mapVisible == true){
-					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;
-				} else {
-					var val = Math.pow(d.properties.countNorm,sizeFactor);
-					return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
-				}})
+				.attr("x", function(d) { 
+					var size = Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin;;
+					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2; 
+				})
+				.attr("y", function(d) { 
+					if (mapVisible == true){
+						var size = Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin;;
+						return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2; 
+					} else {
+						var val = Math.pow(d.properties.countNorm,sizeFactor);
+						return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
+					}
+				})
 				;
 
 		};
