@@ -69,6 +69,27 @@ svg_overlay.append("rect")
 	;
 
 
+//adjusts markers by slider
+function updateMarkersBySlider(week){
+		document.querySelector('#weekSelected').value = week
+		var weekIndex = week
+
+		if (mapVisible == false){
+			g.selectAll("rect")
+				.transition()
+				.duration(500)
+				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]; });
+			} else{
+			g.selectAll("rect")
+				.transition()
+				.duration(500)
+				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
+				.attr("width", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
+				.attr("rx", function(d) { return d.properties.weeklyCounts[weekIndex]*2; })
+				.attr("ry", function(d) { return d.properties.weeklyCounts[weekIndex]*2; });
+			}
+};
+
 
 // circles
 
@@ -199,11 +220,12 @@ function updateData(){
 		;
 
 		markers
-				.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
-					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
-					.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
-					.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
+			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
+				.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
+				.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
+				.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
 		;
+
 
 		// call function to update geometry
 		update();
@@ -260,9 +282,9 @@ function updateData(){
 					return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
 				}})
 				;
+
 		};
 	});
-
 };
 
 updateData();
