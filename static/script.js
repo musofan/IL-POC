@@ -19,11 +19,15 @@ var categories = {
 };
 
 var sizeFactor = .2;
+var sizeMin = 10;
 
 var tooltip = d3.select("div.tooltip");
 var tooltip_title = d3.select("#title");
 var tooltip_count = d3.select("#price");
 
+
+
+var topLeft = [0,0], bottomRight = [0,0];
 
 var map = L.map('map').setView([39.8934, 116.384390666], 16);
 
@@ -47,6 +51,8 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_toke
 
 var mapVisible = true;
 
+
+
 var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
 
 svg_overlay.attr("width", "10000px")
@@ -62,38 +68,7 @@ svg_overlay.append("rect")
 	.attr("height", "100%")
 	;
 
-function toggleMap(){
-	var toggleHeight = window.innerHeight;
 
-	if (semanticVisible == false){
-		if (mapVisible == true){
-			svg_overlay.attr("visibility", "visible");
-			mapVisible = false;
-
-				g.selectAll("rect")
-				.transition()
-				.duration(1000)
-				.attr("rx",0)
-				.attr("ry",0)
-				.attr("width",20)
-				.attr("y", function(d) { return toggleHeight - Math.pow(d.properties.countNorm,sizeFactor)* toggleHeight});
-
-		} else{
-			svg_overlay.attr("visibility", "hidden");
-			mapVisible = true;
-
-			g.selectAll("rect")
-			.transition()
-			.duration(1000)
-			.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
-			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
-			.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; });
-		}
-	if (semanticVisible == true){
-		}
-	}
-}
 
 // circles
 
@@ -130,21 +105,58 @@ function projectStream(lat, lng) {
 	this.stream.point(point.x, point.y);
 }
 
+function toggleMap(){
+
+	if (semanticVisible == false){
+		if (mapVisible == true){
+			svg_overlay.attr("visibility", "visible");
+			mapVisible = false;
+
+			g.selectAll("rect")
+			.transition()
+			.duration(1000)
+			.attr("rx",0)
+			.attr("ry",0)
+			.attr("width",20)
+			// .attr("y",20)
+			.attr("y", function(d) { 
+				var val = Math.pow(d.properties.countNorm,sizeFactor);
+				return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
+			})
+			// .attr("y", function(d) { return toggleHeight - Math.pow(d.properties.countNorm,sizeFactor) * toggleHeight})
+			;
+
+		} else {
+			svg_overlay.attr("visibility", "hidden");
+			mapVisible = true;
+
+			g.selectAll("rect")
+			.transition()
+			.duration(1000)
+			.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
+			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
+			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
+			.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
+			;
+		}
+	}
+}
+
 var transform = d3.geo.transform({point: projectStream});
 var path = d3.geo.path().projection(transform);
 
 function updateData(){
 
-	var mapBounds = map.getBounds();
-	var lat1 = mapBounds["_southWest"]["lat"];
-	var lat2 = mapBounds["_northEast"]["lat"];
-	var lng1 = mapBounds["_southWest"]["lng"];
-	var lng2 = mapBounds["_northEast"]["lng"];
+	// var mapBounds = map.getBounds();
+	// var lat1 = mapBounds["_southWest"]["lat"];
+	// var lat2 = mapBounds["_northEast"]["lat"];
+	// var lng1 = mapBounds["_southWest"]["lng"];
+	// var lng2 = mapBounds["_northEast"]["lng"];
 
-	// CAPTURE USER INPUT FOR CELL SIZE FROM HTML ELEMENTS
-	var cell_size = 25;
-	var w = window.innerWidth;
-	var h = window.innerHeight;
+	// // CAPTURE USER INPUT FOR CELL SIZE FROM HTML ELEMENTS
+	// var cell_size = 25;
+	// var w = window.innerWidth;
+	// var h = window.innerHeight;
 
 	// CAPTURE USER INPUT FOR ANALYSIS TYPE SELECTION
 	// var checked = document.getElementById("showOverlay").checked;
@@ -159,7 +171,8 @@ function updateData(){
 
 	console.log(request);
 
-  	d3.json(request, function(data) {
+	d3.json(request, function(data) {
+
 
 		//create placeholder circle geometry and bind it to data
 		var markers = g.selectAll("rect").data(data.features);
@@ -181,15 +194,15 @@ function updateData(){
 				tooltip.style("visibility", "hidden");
 			})
 			.attr("class", "marker")
-    		// .attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
-    		.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
+			// .attr("fill", function(d) { return "hsl(" + Math.floor((6.0/d.properties.cat)*250) + ", 100%, 50%)"; })
+			.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
 
 		markers
-    			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
-					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20; })
-					.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
-					.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2; })
+				.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
+					.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
+					.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
+					.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
 		;
 
 		// call function to update geometry
@@ -221,29 +234,34 @@ function updateData(){
 		// function to update the data
 		function update() {
 
+			// get bounding box of data
+			var bounds = path.bounds(data);
+			topLeft = bounds[0];
+			bottomRight = bounds[1];
+
+			console.log(topLeft);
+			console.log(bottomRight);
+
 			// g_overlay.selectAll("rect").remove()
 
-			// get bounding box of data
-		    var bounds = path.bounds(data),
-		        topLeft = bounds[0],
-		        bottomRight = bounds[1];
+			var buffer = 50;
 
-		    var buffer = 50;
+			// reposition the SVG to cover the features.
+			svg .attr("width", bottomRight[0] - topLeft[0] + (buffer * 2))
+				.attr("height", bottomRight[1] - topLeft[1] + (buffer * 2))
+				.style("left", (topLeft[0] - buffer) + "px")
+				.style("top", (topLeft[1] - buffer) + "px");
 
-		    // reposition the SVG to cover the features.
-		    svg .attr("width", bottomRight[0] - topLeft[0] + (buffer * 2))
-		        .attr("height", bottomRight[1] - topLeft[1] + (buffer * 2))
-		        .style("left", (topLeft[0] - buffer) + "px")
-		        .style("top", (topLeft[1] - buffer) + "px");
+			g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
-		    g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
-
-		    markers
-		    	.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
-		    	.attr("y", function(d) { if (mapVisible == true){
-							return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;}
-//							else {return window.innerHeight - Math.pow(d.properties.countNorm,.1)* window.innerHeight;}})
-							else {return toggleHeight - Math.pow(d.properties.countNorm,.1)* toggleHeight}})
+			markers
+				.attr("x", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
+				.attr("y", function(d) { if (mapVisible == true){
+					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y;
+				} else {
+					var val = Math.pow(d.properties.countNorm,sizeFactor);
+					return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
+				}})
 				;
 		};
 	});
