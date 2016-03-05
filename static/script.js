@@ -239,9 +239,6 @@ function updateData(){
 			topLeft = bounds[0];
 			bottomRight = bounds[1];
 
-			console.log(topLeft);
-			console.log(bottomRight);
-
 			// g_overlay.selectAll("rect").remove()
 
 			var buffer = 50;
