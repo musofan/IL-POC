@@ -9,7 +9,14 @@
 	<!-- import external stylesheet -->
 	<link rel="stylesheet" href="./static/style.css" />
 
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="description" content="Natural Language Form with custom text input and drop-down lists" /> -->
+	<!-- <meta name="keywords" content="Natural Language UI, sentence form, text input, contenteditable, html5, css3, jquery" /> -->
+	<!-- <meta name="author" content="Codrops" /> -->
+	<!-- <link rel="shortcut icon" href="../favicon.ico">  -->
+	<link rel="stylesheet" type="text/css" href="static/default.css" />
+	<link rel="stylesheet" type="text/css" href="static/component.css" />
+	<script src="static/lib/modernizr.custom.js"></script>
 
 </head>
 <body>
@@ -20,6 +27,53 @@
 		<p class="tooltip-text" id="title">This is the title</p>
 		<p class="tooltip-text" id="price">This is the price</p>
 	</div>
+
+	<div class="semantic">
+		<div class="container demo-1">
+			<!-- Top Navigation -->
+<!-- 			<div class="codrops-top clearfix">
+				<a class="codrops-icon codrops-icon-prev" href="http://tympanus.net/Development/MorphingDevices/"><span>Previous Demo</span></a>
+				<span class="right"><a class="codrops-icon codrops-icon-drop" href="http://tympanus.net/codrops/?p=15139"><span>Back to the Codrops Article</span></a></span>
+			</div> -->
+			<header>
+				<h1>Impact Learning</h1>	
+			</header>
+			<div class="main clearfix">
+				<form id="nl-form" class="nl-form">
+					I would like to understand
+					<!-- <br /> -->
+					<select>
+						<option value="1" selected>anything</option>
+						<option value="2">Business Popularity</option>
+						<option value="3">Cultural Vitality</option>
+					</select>
+					<br /><br />
+					in
+					<!-- <br /> -->
+					<select>
+						<option value="1" selected>anyplace</option>
+						<option value="2">Dashilar</option>
+						<option value="3">Qianmen</option>
+						<option value="4">798 Art Zone</option>
+					</select>
+					<br /><br />
+					based on
+					<!-- <br /> -->
+					<input type="text" value="" placeholder="Investment in BJDW" data-subline="For example: <em>Investment</em> or <em>Media Coverage</em>"/>
+					<br /><br />
+					<div class="nl-submit-wrap">
+						<button class="nl-submit" type="submit">Start Learning</button>
+					</div>
+					<div class="nl-overlay"></div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script src="static/nlform.js"></script>
+	<script>
+		var nlform = new NLForm( document.getElementById( 'nl-form' ) );
+	</script>
 
 	<!-- import external script -->
 	<script type="text/javascript" src="./static/script.js"></script>
