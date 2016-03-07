@@ -102,7 +102,13 @@ var div_slider = d3.select("body").append("div").attr("class", "slider");
 
 var semanticVisible = false;
 
-var div_semanticUI = d3.select("body").append("div").attr("class", "semantic").style("visibility", "hidden");
+// select ui div from .html file
+var div_semanticUI = d3.select("div.semantic");
+
+if (semanticVisible == false){
+	div_semanticUI.style("visibility", "hidden");
+}
+
 
 function toggleSemantic(){
 	if (semanticVisible == true){

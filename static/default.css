@@ -19,12 +19,12 @@ body, html { font-size: 100%; padding: 0; margin: 0;}
 .clearfix:before, .clearfix:after { content: " "; display: table; }
 .clearfix:after { clear: both; }
 
-body {
+div.semantic {
 	font-family: 'Lato', Calibri, Arial, sans-serif;
-	color: #edf8fe;
+	color: #e1e1e1;
 	/*original font color:#ffe8e7
 	background: #E96D65; Pink*/
-	background: #62A8E5; /*columbia blue #C4D8E2  #62A8E5*/
+	/*background: #62A8E5; columbia blue #C4D8E2  #62A8E5*/
 	font-weight: 300;
 	overflow-x: hidden;
 }
@@ -61,7 +61,7 @@ a:active {
 .container > header span {
 	display: block;
 	font-size: 60%;
-	color: #C4D8E2;
+	color: #e1e1e1;
 	padding: 0 0 0.6em 0.1em;
 }
 
@@ -83,14 +83,14 @@ a:active {
 .codrops-top a {
 	padding: 0 1em;
 	letter-spacing: 0.1em;
-	color: #C4D8E2;
+	color: #e1e1e1;
 	font-weight: 700;
 	display: inline-block;
 }
 
 .codrops-top a:hover {
 	background: rgba(255,255,255,0.5);
-	color: #C4D8E2;
+	color: #e1e1e1;
 }
 
 .codrops-top span.right {
