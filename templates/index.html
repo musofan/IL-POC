@@ -1,58 +1,42 @@
-<!DOCTYPE html>
-<html lang="en" class="no-js">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-		<title>Natural Language Form</title>
-		<meta name="description" content="Natural Language Form with custom text input and drop-down lists" />
-		<meta name="keywords" content="Natural Language UI, sentence form, text input, contenteditable, html5, css3, jquery" />
-		<meta name="author" content="Codrops" />
-		<link rel="shortcut icon" href="../favicon.ico"> 
-		<link rel="stylesheet" type="text/css" href="static/default.css" />
-		<link rel="stylesheet" type="text/css" href="static/component.css" />
-		<script src="static/lib/modernizr.custom.js"></script>
-	</head>
-	<body class="nl-blurred">
-		<div class="container demo-1">
-			<!-- Top Navigation -->
-<!-- 			<div class="codrops-top clearfix">
-				<a class="codrops-icon codrops-icon-prev" href="http://tympanus.net/Development/MorphingDevices/"><span>Previous Demo</span></a>
-				<span class="right"><a class="codrops-icon codrops-icon-drop" href="http://tympanus.net/codrops/?p=15139"><span>Back to the Codrops Article</span></a></span>
-			</div> -->
-			<header>
-				<h1>Impact Learning <span>Proof of Concept</span></h1>	
-			</header>
-			<div class="main clearfix">
-				<form id="nl-form" class="nl-form">
-					I would like to understand
-					<br />
-					<select>
-						<option value="1" selected>anything</option>
-						<option value="2">Business Popularity</option>
-						<option value="3">Cultural Vitality</option>
-					</select>
-					<br />in
-					<br />
-					<select>
-						<option value="1" selected>anyplace</option>
-						<option value="2">Dashilar</option>
-						<option value="3">Qianmen</option>
-						<option value="4">798 Art Zone</option>
-					</select>
-					<br />based on
-					<br />
-					<input type="text" value="" placeholder="Investment in BJDW" data-subline="For example: <em>Investment</em> or <em>Media Coverage</em>"/>
-					<div class="nl-submit-wrap">
-						<button class="nl-submit" type="submit">Start Learning</button>
-					</div>
-					<div class="nl-overlay"></div>
-				</form>
-			</div>
-		</div><!-- /container -->
-		<script src="static/nlform.js"></script>
-		<script>
-			var nlform = new NLForm( document.getElementById( 'nl-form' ) );
-		</script>
-	</body>
+<html>
+<head>
+	<title>Impact Learning Proof of Concept</title>
+	<script type="text/javascript" src="./static/lib/d3.js"></script>
+	<script type="text/javascript" src="./static/lib/leaflet.js"></script>
+	<script type="text/javascript" src="./static/colors.js"></script>
+	<link rel="stylesheet" href="./static/lib/leaflet.css" />
+
+	<!-- import external stylesheet -->
+	<link rel="stylesheet" href="./static/style.css" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+</head>
+<body>
+
+	<div id="map"></div>
+
+	<div class="tooltip">
+		<p class="tooltip-text" id="title">This is the title</p>
+		<p class="tooltip-text" id="price">This is the price</p>
+	</div>
+
+	<!-- import external script -->
+	<script type="text/javascript" src="./static/script.js"></script>
+
+	<div class="menu">
+		<p><h4>Impact Learning</h4></p>
+		<form>
+			<!-- IMPLEMENT NEW USER INTERFACE ELEMENTS HERE -->
+			<p><input type="button" value="Map" onclick="toggleMap()"></p>
+			<p><input type="button" value="Semantic" onclick="toggleSemantic()"></p>
+			<p><label for="slider">Week</label>
+				<input type="range" min="0" max="53" value="0" id="slider" step="1" oninput="updateMarkersBySlider(value)">
+				<output for="slider" id="weekSelected">50</output></p>
+			<p>Status: <em id="message"></em></p>
+		</form>
+	</div>
+
+
+</body>
 </html>
