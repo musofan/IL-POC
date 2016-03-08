@@ -73,13 +73,13 @@ function updateMarkersBySlider(week){
 			g.selectAll("rect")
 				.transition()
 				.duration(500)
-				.attr("x", function(d) { 
+				.attr("x", function(d) {
 					var size = Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin;
-					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2; 
+					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2;
 				})
-				.attr("y", function(d) { 
+				.attr("y", function(d) {
 					var size = Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin;
-					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2; 
+					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2;
 				})
 				.attr("height", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
 				.attr("width", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
@@ -144,7 +144,7 @@ function toggleMap(){
 			.attr("ry",0)
 			.attr("width",20)
 			// .attr("y",20)
-			.attr("y", function(d) { 
+			.attr("y", function(d) {
 				var val = Math.pow(d.properties.countNorm,sizeFactor);
 				return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
 			})
@@ -162,6 +162,7 @@ function toggleMap(){
 			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
 			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
 			.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
+			.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
 			;
 		}
 	}
@@ -233,14 +234,14 @@ function updateData(){
 			g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
 			markers
-				.attr("x", function(d) { 
+				.attr("x", function(d) {
 					var size = Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin;;
-					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2; 
+					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2;
 				})
-				.attr("y", function(d) { 
+				.attr("y", function(d) {
 					if (mapVisible == true){
 						var size = Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin;;
-						return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2; 
+						return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2;
 					} else {
 						var val = Math.pow(d.properties.countNorm,sizeFactor);
 						return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
