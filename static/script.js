@@ -1,13 +1,4 @@
 
-
-// var eventOutputContainer = document.getElementById("message");
-// var eventSrc = new EventSource("/eventSource");
-
-// eventSrc.onmessage = function(e) {
-// 	console.log(e);
-// 	eventOutputContainer.innerHTML = e.data;
-// };
-
 var categories = {
 0: "Outside study area",
 1: "Retail",
@@ -23,7 +14,7 @@ var sizeMin = 10;
 
 var tooltip = d3.select("div.tooltip");
 var tooltip_title = d3.select("#title");
-var tooltip_count = d3.select("#price");
+var tooltip_detail = d3.select("#detail");
 
 
 
@@ -189,7 +180,7 @@ function updateData(){
 			.on("mouseover", function(d){
 				tooltip.style("visibility", "visible");
 				tooltip_title.text(d.properties.name);
-				tooltip_count.text(categories[d.properties.cat]);
+				tooltip_detail.text(categories[d.properties.cat]);
 			})
 			.on("mousemove", function(){
 				tooltip.style("top", (d3.event.pageY-10)+"px")
