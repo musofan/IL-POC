@@ -170,6 +170,35 @@ function toggleMap(){
 	updateMarkers(duration = 1000);
 }
 
+//keyboard handling
+//http://stackoverflow.com/questions/4954403/can-jquery-keypress-detect-more-than-one-key-at-the-same-time
+var keys = {};
+
+$(document).keydown(function (e) {
+    keys[e.which] = true;
+    checkKeys(e);
+});
+
+$(document).keyup(function (e) {
+    delete keys[e.which];
+});
+
+function checkKeys(e) {
+	//if both ctrl and space is pressed, toggle semantic interface
+	if (keys.hasOwnProperty(17) && keys.hasOwnProperty(32)){
+		toggleSemantic();
+	}
+}
+
+// var ctrlPressed = false;
+
+// $( document ).keypress(function() {
+// 	// console.log(event.which);
+// 	if ( event.which == 32 ) {
+//   		toggleSemantic();
+// 	}
+// });
+
 
 function projectPoint(lat, lng) {
 	return map.latLngToLayerPoint(new L.LatLng(lat, lng));
