@@ -98,17 +98,19 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 var div_slider = d3.select("body").append("div").attr("class", "slider");
 
+var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
+
 var margin = {top: 0, right: 10, bottom: 20, left: 10},
     width = window.innerWidth-(margin.left+margin.right);
   	height = (window.innerHeight*.19)-(margin.top+margin.bottom);
 
 var x = d3.time.scale()
-    .domain([new Date(2015, 1, 1), new Date(2016, 1, 1) - 1])
+    .domain([timeFormat.parse('2015-01-01T00:00:00'), timeFormat.parse('2015-12-31T00:00:00')])
     .range([0, width]);
 
 var brush = d3.svg.brush()
     .x(x)
-    .extent([new Date(2015, 1, 1), new Date(2015, 1, 7)])
+    .extent([timeFormat.parse('2015-01-01T00:00:00'), timeFormat.parse('2015-01-07T00:00:00')])
     .on("brushend", brushended);
 
 var svg_slider = div_slider.append("svg")
@@ -128,7 +130,7 @@ svg_slider.append("g")
     .call(d3.svg.axis()
         .scale(x)
         .orient("bottom")
-        .ticks(d3.time.weeks, 1)
+        .ticks(d3.time.thursday, 1)
         .tickSize(-height)
         .tickFormat(""))
   .selectAll(".tick")
@@ -157,12 +159,12 @@ gBrush.selectAll("rect")
 function brushended() {
   if (!d3.event.sourceEvent) return; // only transition after input
   var extent0 = brush.extent(),
-      extent1 = extent0.map(d3.time.week.round);
+      extent1 = extent0.map(d3.time.thursday.round);
 
   // if empty when rounded, use floor & ceil instead
   if (extent1[0] >= extent1[1]) {
-    extent1[0] = d3.time.week.floor(extent0[0]);
-    extent1[1] = d3.time.week.ceil(extent0[1]);
+    extent1[0] = d3.time.thursday.floor(extent0[0]);
+    extent1[1] = d3.time.thursday.ceil(extent0[1]);
   }
 
   d3.select(this).transition()
