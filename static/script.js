@@ -10,13 +10,15 @@ var categories = {
 };
 
 var sizeFactor = .2;
-var sizeMin = 10;
+var sizeMultiplier = 10;
+var sizeMin = 0;
+var barWidth = 8;
+
+var weekIndex = 0;
 
 var tooltip = d3.select("div.tooltip");
 var tooltip_title = d3.select("#title");
 var tooltip_detail = d3.select("#detail");
-
-
 
 var topLeft = [0,0], bottomRight = [0,0];
 
@@ -31,10 +33,7 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_toke
 //create variables to store a reference to svg and g elements
 
 // white overlay
-
 var mapVisible = true;
-
-var weekIndex = 0;
 
 var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
 
@@ -52,31 +51,53 @@ svg_overlay.append("rect")
 	;
 
 
+// markers
+var svg = d3.select(map.getPanes().overlayPane).append("svg");
+var g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+// slider
+var div_slider = d3.select("body").append("div").attr("class", "slider");
+
+// semantic ui
+var semanticVisible = false;
+// select ui div from .html file
+var div_semanticUI = d3.select("div.semantic");
+if (semanticVisible == false){
+	div_semanticUI.style("visibility", "hidden");
+}
+
+//HELPER FUNCTIONS
+
+//properties for marker updates
 function rect_getProperty(property, d, weekIndex){
 
 	weekIndex = typeof weekIndex !== 'undefined' ? weekIndex : 0;
 
 	if (property == "radius"){
 		if (weekIndex == 0){
-			return Math.pow(d.properties.count,sizeFactor) * 5 + sizeMin;
+			return Math.pow(d.properties.count,sizeFactor) * sizeMultiplier/1.5 + sizeMin;
 		} else {
-			return Math.pow(d.properties.weeklyCounts[weekIndex],sizeFactor) * 5 + sizeMin;
+			return Math.pow(d.properties.weeklyCounts[weekIndex],sizeFactor) * sizeMultiplier + sizeMin;
 		}
 	}
 
 	if (property == "position"){
-		radius = rect_getProperty("radius", d, weekIndex);
-		var x = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x + radius/2;
-		var y = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y + radius/2;
+		var radius = rect_getProperty("radius", d, weekIndex);
+		var x = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - radius/2;
+		var y = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - radius/2;
 		return [x, y]
 	}
 
 	if (property == "popularity"){
+		var radius = rect_getProperty("radius", d, weekIndex);
+		var x = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - barWidth/2;
 		var val = Math.pow(d.properties.countNorm,sizeFactor);
-		return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
+		var y = bottomRight[1] - (val * (bottomRight[1]-topLeft[1])) - radius/2;
+		return [x, y]
 	}
 }
 
+//function for updating marker display
 function updateMarkers(duration){
 
 	duration = typeof duration !== 'undefined' ? duration : 500;
@@ -85,12 +106,13 @@ function updateMarkers(duration){
 		g.selectAll("rect")
 			.transition()
 			.duration(duration)
-			.attr("x", function(d) { return rect_getProperty("position", d, weekIndex)[0];  })
-			.attr("y", function(d) { return rect_getProperty("popularity", d); })
+			.attr("x", function(d) { return rect_getProperty("popularity", d, weekIndex)[0]; })
+			.attr("y", function(d) { return rect_getProperty("popularity", d, weekIndex)[1]; })
 			.attr("rx",0)
 			.attr("ry",0)
-			.attr("width",20)
-			.attr("height", function(d) { return rect_getProperty("radius", d, weekIndex); });
+			.attr("width", barWidth)
+			.attr("height", function(d) { return rect_getProperty("radius", d, weekIndex); })
+		;
 	} else {
 		g.selectAll("rect")
 			.transition()
@@ -99,13 +121,12 @@ function updateMarkers(duration){
 			.attr("y", function(d) { return rect_getProperty("position", d, weekIndex)[1];  })
 			.attr("height", function(d) { return rect_getProperty("radius", d, weekIndex); })
 			.attr("width", function(d) { return rect_getProperty("radius", d, weekIndex); })
-			.attr("rx", function(d) { return rect_getProperty("radius", d) / 2; })
-			.attr("ry", function(d) { return rect_getProperty("radius", d) / 2; })
+			.attr("rx", function(d) { return rect_getProperty("radius", d, weekIndex) / 2; })
+			.attr("ry", function(d) { return rect_getProperty("radius", d, weekIndex) / 2; })
 		;
 	}
 
 }
-
 
 //adjusts markers by slider
 function updateMarkersBySlider(week){
@@ -115,28 +136,7 @@ function updateMarkersBySlider(week){
 	updateMarkers();
 };
 
-
-// circles
-
-var svg = d3.select(map.getPanes().overlayPane).append("svg");
-var g = svg.append("g").attr("class", "leaflet-zoom-hide");
-
-// slider
-
-var div_slider = d3.select("body").append("div").attr("class", "slider");
-
-// semantic ui
-
-var semanticVisible = false;
-
-// select ui div from .html file
-var div_semanticUI = d3.select("div.semantic");
-
-if (semanticVisible == false){
-	div_semanticUI.style("visibility", "hidden");
-}
-
-
+//adjusts visibility of semantic interface
 function toggleSemantic(){
 	if (semanticVisible == true){
 		div_semanticUI.style("visibility", "hidden");
@@ -145,6 +145,21 @@ function toggleSemantic(){
 		div_semanticUI.style("visibility", "visible");
 		semanticVisible = true;
 	}
+}
+
+//adjusts map visibility
+function toggleMap(){
+	if (semanticVisible == true){
+		return null
+	}
+	if (mapVisible == true){
+		svg_overlay.attr("visibility", "visible");
+		mapVisible = false;
+	} else {
+		svg_overlay.attr("visibility", "hidden");
+		mapVisible = true;
+	}
+	updateMarkers(duration = 1000);
 }
 
 
@@ -157,23 +172,6 @@ function projectStream(lat, lng) {
 	this.stream.point(point.x, point.y);
 }
 
-function toggleMap(){
-
-	if (semanticVisible == true){
-		return null
-	}
-
-	if (mapVisible == true){
-		svg_overlay.attr("visibility", "visible");
-		mapVisible = false;
-	} else {
-		svg_overlay.attr("visibility", "hidden");
-		mapVisible = true;
-	}
-
-	updateMarkers(duration = 1000);
-}
-
 var transform = d3.geo.transform({point: projectStream});
 var path = d3.geo.path().projection(transform);
 
@@ -182,7 +180,7 @@ function updateData(){
 	request = "/getData"
 	d3.json(request, function(data) {
 
-		//create placeholder circle geometry and bind it to data
+		//create placeholder marker geometry and bind it to data
 		var markers = g.selectAll("rect").data(data.features);
 
 		console.log(data);
@@ -205,12 +203,12 @@ function updateData(){
 			.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
 
-		markers
-			.attr("rx", function(d) { return rect_getProperty("radius", d) / 2; })
-			.attr("ry", function(d) { return rect_getProperty("radius", d) / 2; })
-			.attr("width", function(d) { return rect_getProperty("radius", d); })
-			.attr("height", function(d) { return rect_getProperty("radius", d); })
-		;
+		// markers
+		// 	.attr("rx", function(d) { return rect_getProperty("radius", d) / 2; })
+		// 	.attr("ry", function(d) { return rect_getProperty("radius", d) / 2; })
+		// 	.attr("width", function(d) { return rect_getProperty("radius", d); })
+		// 	.attr("height", function(d) { return rect_getProperty("radius", d); })
+		// ;
 
 		// call function to update geometry
 		update();
@@ -224,8 +222,6 @@ function updateData(){
 			topLeft = bounds[0];
 			bottomRight = bounds[1];
 
-			// g_overlay.selectAll("rect").remove()
-
 			var buffer = 50;
 
 			// reposition the SVG to cover the features.
@@ -236,16 +232,7 @@ function updateData(){
 
 			g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
-			markers
-				.attr("x", function(d) { return rect_getProperty("position", d)[0]; })
-				.attr("y", function(d) {
-					if (mapVisible == true){ 
-						return rect_getProperty("position", d)[1];
-					} else {
-						return rect_getProperty("popularity", d);
-					}
-				})
-				;
+			updateMarkers(duration = 0);
 
 		};
 	});
