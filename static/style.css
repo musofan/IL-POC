@@ -80,3 +80,7 @@ em{
   color: red;
   font-weight: bold;
 }
+
+head.tt-dropdown-menu {
+     display: none !important;
+}

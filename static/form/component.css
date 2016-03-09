@@ -25,8 +25,8 @@
 
 /* normalize the input elements, make them look like everything else */
 .nl-form input,
-.nl-form select,
-.nl-form button {
+.nl-form datalist,
+.nl-form option {
 	border: none;
 	background: transparent;
 	font-family: inherit;

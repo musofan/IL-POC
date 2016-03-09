@@ -61,7 +61,7 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 var div_slider = d3.select("body").append("div").attr("class", "slider");
 
 // semantic ui
-var semanticVisible = false;
+var semanticVisible = true;
 // select ui div from .html file
 // var div_semanticUI = d3.select("div.semantic");
 
@@ -190,15 +190,6 @@ function checkKeys(e) {
 	}
 }
 
-// var ctrlPressed = false;
-
-// $( document ).keypress(function() {
-// 	// console.log(event.which);
-// 	if ( event.which == 32 ) {
-//   		toggleSemantic();
-// 	}
-// });
-
 
 function projectPoint(lat, lng) {
 	return map.latLngToLayerPoint(new L.LatLng(lat, lng));
@@ -269,3 +260,67 @@ function updateData(){
 };
 
 updateData();
+
+
+//semantic UI autocomplete
+
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substringRegex;
+
+    // an array that will be populated with substring matches
+    matches = [];
+
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        matches.push(str);
+      }
+    });
+
+    cb(matches);
+  };
+};
+
+var content = ['business popularity'];
+
+$('#semantic_form .content').typeahead({
+  hint: true,
+  highlight: true,
+  minLength: 1
+},
+{
+  name: 'content',
+  source: substringMatcher(content)
+});
+
+var context = ['Dashilar'];
+
+$('#semantic_form .context').typeahead({
+  hint: true,
+  highlight: true,
+  minLength: 1
+},
+{
+  name: 'context',
+  source: substringMatcher(context)
+});
+
+var insight = ['investment in BJDW'];
+
+$('#semantic_form .insight').typeahead({
+  hint: true,
+  highlight: true,
+  minLength: 1
+},
+{
+  name: 'insight',
+  source: substringMatcher(insight)
+});
+
+
+

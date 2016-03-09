@@ -3,6 +3,7 @@
 	<title>Impact Learning Proof of Concept</title>
 	<script type="text/javascript" src="./static/lib/d3.js"></script>
 	<script type="text/javascript" src="./static/lib/jquery.min.js"></script>
+	<script type="text/javascript" src="./static/lib/typeahead.bundle.js"></script>
 	<script type="text/javascript" src="./static/lib/leaflet.js"></script>
 	<script type="text/javascript" src="./static/colors.js"></script>
 	<link rel="stylesheet" href="./static/lib/leaflet.css" />
@@ -15,9 +16,9 @@
 	<!-- <meta name="keywords" content="Natural Language UI, sentence form, text input, contenteditable, html5, css3, jquery" /> -->
 	<!-- <meta name="author" content="Codrops" /> -->
 	<!-- <link rel="shortcut icon" href="../favicon.ico">  -->
-	<link rel="stylesheet" type="text/css" href="static/default.css" />
-	<link rel="stylesheet" type="text/css" href="static/component.css" />
-	<script src="static/lib/modernizr.custom.js"></script>
+	<link rel="stylesheet" type="text/css" href="static/semantic.css" />
+	<!-- <link rel="stylesheet" type="text/css" href="static/component.css" />
+	<script src="static/lib/modernizr.custom.js"></script> -->
 
 </head>
 <body>
@@ -39,42 +40,29 @@
 			<header>
 				<h1>Impact Learning</h1>	
 			</header>
-			<div class="main clearfix">
+			<div class="main clearfix" id="semantic_form">
 				<form id="nl-form" class="nl-form">
-					I would like to understand
-					<!-- <br /> -->
-					<select>
-						<option value="1" selected>anything</option>
-						<option value="2">Business Popularity</option>
-						<option value="3">Cultural Vitality</option>
-					</select>
-					<br /><br />
-					in
-					<!-- <br /> -->
-					<select>
-						<option value="1" selected>anyplace</option>
-						<option value="2">Dashilar</option>
-						<option value="3">Qianmen</option>
-						<option value="4">798 Art Zone</option>
-					</select>
-					<br /><br />
-					based on
-					<!-- <br /> -->
-					<input type="text" value="" placeholder="Investment in BJDW" data-subline="For example: <em>Investment</em> or <em>Media Coverage</em>"/>
-					<br /><br />
-					<div class="nl-submit-wrap">
+					<p class="form_element">I would like to understand
+					<input class="content" type="text" placeholder="" autofocus="autofocus" ></p>
+					<p class="form_element">in
+					<input class="context" type="text" placeholder=""></p>
+					<p class="form_element">based on
+					<input class="insight" type="text" placeholder=""></p>
+					<!-- <div class="nl-submit-wrap">
 						<button class="nl-submit" type="submit">Start Learning</button>
-					</div>
+					</div> -->
 					<div class="nl-overlay"></div>
 				</form>
 			</div>
 		</div>
 	</div>
 
+<!-- 
 	<script src="static/nlform.js"></script>
 	<script>
 		var nlform = new NLForm( document.getElementById( 'nl-form' ) );
 	</script>
+-->
 
 	<!-- import external script -->
 	<script type="text/javascript" src="./static/script.js"></script>
