@@ -98,8 +98,79 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 var div_slider = d3.select("body").append("div").attr("class", "slider");
 
-// semantic ui
+var margin = {top: 0, right: 10, bottom: 20, left: 10},
+    width = window.innerWidth-(margin.left+margin.right);
+  	height = (window.innerHeight*.19)-(margin.top+margin.bottom);
 
+var x = d3.time.scale()
+    .domain([new Date(2015, 1, 1), new Date(2016, 1, 1) - 1])
+    .range([0, width]);
+
+var brush = d3.svg.brush()
+    .x(x)
+    .extent([new Date(2015, 1, 1), new Date(2015, 1, 7)])
+    .on("brushend", brushended);
+
+var svg_slider = div_slider.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+svg_slider.append("rect")
+    .attr("class", "grid-background")
+    .attr("width", width)
+    .attr("height", height);
+
+svg_slider.append("g")
+    .attr("class", "x grid")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+        .ticks(d3.time.weeks, 1)
+        .tickSize(-height)
+        .tickFormat(""))
+  .selectAll(".tick")
+    .classed("minor", function(d) { return d.getHours(); });
+
+svg_slider.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+      .ticks(d3.time.months)
+      .tickPadding(0))
+  .selectAll("text")
+    .attr("x", 6)
+    .style("text-anchor", null);
+
+var gBrush = svg_slider.append("g")
+    .attr("class", "brush")
+    .call(brush)
+    .call(brush.event);
+
+gBrush.selectAll("rect")
+    .attr("height", height);
+
+function brushended() {
+  if (!d3.event.sourceEvent) return; // only transition after input
+  var extent0 = brush.extent(),
+      extent1 = extent0.map(d3.time.week.round);
+
+  // if empty when rounded, use floor & ceil instead
+  if (extent1[0] >= extent1[1]) {
+    extent1[0] = d3.time.week.floor(extent0[0]);
+    extent1[1] = d3.time.week.ceil(extent0[1]);
+  }
+
+  d3.select(this).transition()
+      .call(brush.extent(extent1))
+      .call(brush.event);
+}
+
+// semantic ui
 var semanticVisible = false;
 
 // select ui div from .html file
