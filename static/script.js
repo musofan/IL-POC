@@ -34,6 +34,8 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_toke
 
 var mapVisible = true;
 
+var weekIndex = 0;
+
 var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
 
 svg_overlay.attr("width", "10000px")
@@ -50,33 +52,67 @@ svg_overlay.append("rect")
 	;
 
 
+function rect_getProperty(property, d, weekIndex){
+
+	weekIndex = typeof weekIndex !== 'undefined' ? weekIndex : 0;
+
+	if (property == "radius"){
+		if (weekIndex == 0){
+			return Math.pow(d.properties.count,sizeFactor) * 5 + sizeMin;
+		} else {
+			return Math.pow(d.properties.weeklyCounts[weekIndex],sizeFactor) * 5 + sizeMin;
+		}
+	}
+
+	if (property == "position"){
+		radius = rect_getProperty("radius", d, weekIndex);
+		var x = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x + radius/2;
+		var y = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y + radius/2;
+		return [x, y]
+	}
+
+	if (property == "popularity"){
+		var val = Math.pow(d.properties.countNorm,sizeFactor);
+		return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
+	}
+}
+
+function updateMarkers(duration){
+
+	duration = typeof duration !== 'undefined' ? duration : 500;
+
+	if (mapVisible == false){
+		g.selectAll("rect")
+			.transition()
+			.duration(duration)
+			.attr("x", function(d) { return rect_getProperty("position", d, weekIndex)[0];  })
+			.attr("y", function(d) { return rect_getProperty("popularity", d); })
+			.attr("rx",0)
+			.attr("ry",0)
+			.attr("width",20)
+			.attr("height", function(d) { return rect_getProperty("radius", d, weekIndex); });
+	} else {
+		g.selectAll("rect")
+			.transition()
+			.duration(duration)
+			.attr("x", function(d) { return rect_getProperty("position", d, weekIndex)[0];  })
+			.attr("y", function(d) { return rect_getProperty("position", d, weekIndex)[1];  })
+			.attr("height", function(d) { return rect_getProperty("radius", d, weekIndex); })
+			.attr("width", function(d) { return rect_getProperty("radius", d, weekIndex); })
+			.attr("rx", function(d) { return rect_getProperty("radius", d) / 2; })
+			.attr("ry", function(d) { return rect_getProperty("radius", d) / 2; })
+		;
+	}
+
+}
+
+
 //adjusts markers by slider
 function updateMarkersBySlider(week){
-		document.querySelector('#weekSelected').value = week
-		var weekIndex = week
+	document.querySelector('#weekSelected').value = week
+	weekIndex = week
 
-		if (mapVisible == false){
-			g.selectAll("rect")
-				.transition()
-				.duration(500)
-				.attr("height", function(d) { return d.properties.weeklyCounts[weekIndex]; });
-			} else{
-			g.selectAll("rect")
-				.transition()
-				.duration(500)
-				.attr("x", function(d) {
-					var size = Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin;
-					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2;
-				})
-				.attr("y", function(d) {
-					var size = Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin;
-					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2;
-				})
-				.attr("height", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
-				.attr("width", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
-				.attr("rx", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; })
-				.attr("ry", function(d) { return Math.pow(d.properties.weeklyCounts[weekIndex]/40,sizeFactor) * 20*2 + sizeMin; });
-			}
+	updateMarkers();
 };
 
 
@@ -105,7 +141,7 @@ function toggleSemantic(){
 	if (semanticVisible == true){
 		div_semanticUI.style("visibility", "hidden");
 		semanticVisible = false;
-	}else{
+	} else {
 		div_semanticUI.style("visibility", "visible");
 		semanticVisible = true;
 	}
@@ -123,40 +159,19 @@ function projectStream(lat, lng) {
 
 function toggleMap(){
 
-	if (semanticVisible == false){
-		if (mapVisible == true){
-			svg_overlay.attr("visibility", "visible");
-			mapVisible = false;
-
-			g.selectAll("rect")
-			.transition()
-			.duration(1000)
-			.attr("rx",0)
-			.attr("ry",0)
-			.attr("width",20)
-			// .attr("y",20)
-			.attr("y", function(d) {
-				var val = Math.pow(d.properties.countNorm,sizeFactor);
-				return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
-			})
-			// .attr("y", function(d) { return toggleHeight - Math.pow(d.properties.countNorm,sizeFactor) * toggleHeight})
-			;
-
-		} else {
-			svg_overlay.attr("visibility", "hidden");
-			mapVisible = true;
-
-			g.selectAll("rect")
-			.transition()
-			.duration(1000)
-			.attr("y", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
-			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
-			.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
-			.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
-			.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
-			;
-		}
+	if (semanticVisible == true){
+		return null
 	}
+
+	if (mapVisible == true){
+		svg_overlay.attr("visibility", "visible");
+		mapVisible = false;
+	} else {
+		svg_overlay.attr("visibility", "hidden");
+		mapVisible = true;
+	}
+
+	updateMarkers(duration = 1000);
 }
 
 var transform = d3.geo.transform({point: projectStream});
@@ -165,9 +180,6 @@ var path = d3.geo.path().projection(transform);
 function updateData(){
 
 	request = "/getData"
-
-	console.log(request);
-
 	d3.json(request, function(data) {
 
 		//create placeholder circle geometry and bind it to data
@@ -194,10 +206,10 @@ function updateData(){
 		;
 
 		markers
-			.attr("rx", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
-				.attr("ry", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20 + sizeMin; })
-				.attr("width", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
-				.attr("height", function(d) { return Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin; })
+			.attr("rx", function(d) { return rect_getProperty("radius", d) / 2; })
+			.attr("ry", function(d) { return rect_getProperty("radius", d) / 2; })
+			.attr("width", function(d) { return rect_getProperty("radius", d); })
+			.attr("height", function(d) { return rect_getProperty("radius", d); })
 		;
 
 		// call function to update geometry
@@ -225,17 +237,12 @@ function updateData(){
 			g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
 
 			markers
-				.attr("x", function(d) {
-					var size = Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin;;
-					return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - size/2;
-				})
+				.attr("x", function(d) { return rect_getProperty("position", d)[0]; })
 				.attr("y", function(d) {
-					if (mapVisible == true){
-						var size = Math.pow(d.properties.countNorm,sizeFactor) * 20*2 + sizeMin;;
-						return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - size/2;
+					if (mapVisible == true){ 
+						return rect_getProperty("position", d)[1];
 					} else {
-						var val = Math.pow(d.properties.countNorm,sizeFactor);
-						return bottomRight[1] - (val * (bottomRight[1]-topLeft[1]));
+						return rect_getProperty("popularity", d);
 					}
 				})
 				;

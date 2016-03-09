@@ -41,6 +41,10 @@ p.tooltip-text{
 	padding: 0px;
 }
 
+#title{
+	font-weight: bold;
+}
+
 div.menu{
 	position: fixed;
 	margin: 0px;
