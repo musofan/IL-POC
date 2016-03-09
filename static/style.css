@@ -25,7 +25,7 @@ rect.marker:hover {
 	cursor: crosshair;
 }
 
-rect.map_overlay{
+rect.overlay{
 	fill: hsl(0, 0%, 93%);
 }
 

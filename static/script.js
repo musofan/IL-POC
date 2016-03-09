@@ -1,12 +1,12 @@
 
 var categories = {
-0: "Outside study area",
-1: "Retail",
-2: "Food and beverage",
-3: "Attraction",
-4: "Other business",
-5: "Specific place",
-6: "General region",
+	0: "Outside study area",
+	1: "Retail",
+	2: "Food and beverage",
+	3: "Attraction",
+	4: "Other business",
+	5: "Specific place",
+	6: "General region",
 };
 
 var sizeFactor = .2;
@@ -37,15 +37,17 @@ var mapVisible = true;
 
 var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
 
-svg_overlay.attr("width", "10000px")
+svg_overlay
+	.attr("class", "map_overlay")
+	.attr("width", "10000px")
 	.attr("height", "10000px")
 	.style("left", "-1000px")
 	.style("top", "-1000px")
-	.attr("visibility", "hidden") // toggle this value to turn map on and off
+	.attr("display", "none") // toggle this value to turn map on and off
 	;
 
 svg_overlay.append("rect")
-	.attr("class", "map_overlay")
+	.attr("class", "overlay")
 	.attr("width", "100%")
 	.attr("height", "100%")
 	;
@@ -61,9 +63,11 @@ var div_slider = d3.select("body").append("div").attr("class", "slider");
 // semantic ui
 var semanticVisible = false;
 // select ui div from .html file
-var div_semanticUI = d3.select("div.semantic");
-if (semanticVisible == false){
-	div_semanticUI.style("visibility", "hidden");
+// var div_semanticUI = d3.select("div.semantic");
+
+if (semanticVisible == true){
+	$(".semantic").fadeIn();
+	// div_semanticUI.style("visibility", "hidden");
 }
 
 //HELPER FUNCTIONS
@@ -139,10 +143,12 @@ function updateMarkersBySlider(week){
 //adjusts visibility of semantic interface
 function toggleSemantic(){
 	if (semanticVisible == true){
-		div_semanticUI.style("visibility", "hidden");
+		$(".semantic").fadeOut();
+		// div_semanticUI.style("visibility", "hidden");
 		semanticVisible = false;
 	} else {
-		div_semanticUI.style("visibility", "visible");
+		// div_semanticUI.style("visibility", "visible");
+		$(".semantic").fadeIn();
 		semanticVisible = true;
 	}
 }
@@ -153,10 +159,12 @@ function toggleMap(){
 		return null
 	}
 	if (mapVisible == true){
-		svg_overlay.attr("visibility", "visible");
+		$(".map_overlay").fadeIn();
+		// svg_overlay.attr("visibility", "visible");
 		mapVisible = false;
 	} else {
-		svg_overlay.attr("visibility", "hidden");
+		$(".map_overlay").fadeOut();
+		// svg_overlay.attr("visibility", "hidden");
 		mapVisible = true;
 	}
 	updateMarkers(duration = 1000);
@@ -202,13 +210,6 @@ function updateData(){
 			.attr("class", "marker")
 			.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
-
-		// markers
-		// 	.attr("rx", function(d) { return rect_getProperty("radius", d) / 2; })
-		// 	.attr("ry", function(d) { return rect_getProperty("radius", d) / 2; })
-		// 	.attr("width", function(d) { return rect_getProperty("radius", d); })
-		// 	.attr("height", function(d) { return rect_getProperty("radius", d); })
-		// ;
 
 		// call function to update geometry
 		update();
