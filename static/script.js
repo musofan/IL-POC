@@ -184,9 +184,13 @@ $(document).keyup(function (e) {
 });
 
 function checkKeys(e) {
+	console.log(e.which)
 	//if both ctrl and space is pressed, toggle semantic interface
 	if (keys.hasOwnProperty(17) && keys.hasOwnProperty(32)){
 		toggleSemantic();
+	}
+	if (keys.hasOwnProperty(16) && keys.hasOwnProperty(32)){
+		toggleMap();
 	}
 }
 
