@@ -82,10 +82,8 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 
-
 var brush
-var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
-var weekIndexFormat = d3.time.format('%j')
+var timeFormat = d3.time.format('%j');
 
 function makeSlider(){
 
@@ -97,12 +95,12 @@ function makeSlider(){
 	var height = $('.slider').height()-(margin.top+margin.bottom);
 
 	var x = d3.time.scale()
-	    .domain([timeFormat.parse('2015-01-01T00:00:00'), timeFormat.parse('2015-12-31T00:00:00')])
+	    .domain([timeFormat.parse('0'), timeFormat.parse('364')])
 	    .range([0, width]);
 
 	brush = d3.svg.brush()
 	    .x(x)
-	    .extent([timeFormat.parse('2015-01-01T00:00:00'), timeFormat.parse('2015-01-07T00:00:00')])
+	    .extent([timeFormat.parse('0'), timeFormat.parse('7')])
 	    .on("brushend", brushended);
 
 	var svg_slider = div_slider.append("svg")
@@ -122,11 +120,9 @@ function makeSlider(){
 	    .call(d3.svg.axis()
 	        .scale(x)
 	        .orient("bottom")
-	        .ticks(d3.time.thursday, 1)
+	        .ticks(d3.time.weeks)
 	        .tickSize(-height)
-	        .tickFormat(""))
-	  .selectAll(".tick")
-	    .classed("minor", function(d) { return d.getHours(); });
+	        .tickFormat(""));
 
 	svg_slider.append("g")
 	    .attr("class", "x axis")
@@ -135,6 +131,7 @@ function makeSlider(){
 	      .scale(x)
 	      .orient("bottom")
 	      .ticks(d3.time.months)
+				.tickFormat(d3.time.format("%B"))
 	      .tickPadding(0))
 	  .selectAll("text")
 	    .attr("x", 6)
@@ -147,33 +144,29 @@ function makeSlider(){
 
 	gBrush.selectAll("rect")
 	    .attr("height", height);
-
 }
 
 function brushended() {
   if (!d3.event.sourceEvent) return; // only transition after input
   var extent0 = brush.extent(),
-      extent1 = extent0.map(d3.time.thursday.round);
+      extent1 = extent0.map(d3.time.week.round);
 
   // if empty when rounded, use floor & ceil instead
   if (extent1[0] >= extent1[1]) {
-    extent1[0] = d3.time.thursday.floor(extent0[0]);
-    extent1[1] = d3.time.thursday.ceil(extent0[1]);
+    extent1[0] = d3.time.week.floor(extent0[0]);
+    extent1[1] = d3.time.week.ceil(extent0[1]);
   }
 
   d3.select(this).transition()
       .call(brush.extent(extent1))
       .call(brush.event);
 
-	var extent2 = (extent1.map(function (d) {return Math.floor(weekIndexFormat(d)/7+1)}));
+	var extent2 = (extent1.map(function (d) {return Math.floor(timeFormat(d)/7)+1}));
 
-	weekIndex = extent2[0];
-	updateMarkers();
+	updateMarkersBySlider(extent2[0]);
 
-	console.log(extent2[0])
-	console.log(weekIndex)
+	console.log(extent2)
 }
-
 
 var semanticActive = false; //toggle to active semantic UI walkthrough
 
@@ -256,8 +249,14 @@ function updateMarkers(duration){
 			.attr("ry", function(d) { return rect_getProperty("radius", d, weekIndex) / 2; })
 		;
 	}
-
 }
+
+//adjusts markers by slider
+function updateMarkersBySlider(week){
+	// document.querySelector('#weekSelected').value = week
+	weekIndex = week
+	updateMarkers();
+};
 
 //adjusts visibility of semantic interface
 function toggleSemantic(){
