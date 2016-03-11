@@ -9,6 +9,8 @@ var categories = {
 	6: "General region",
 };
 
+
+
 var sizeFactor = .2;
 var sizeMultiplier = 10;
 var sizeMin = 0;
@@ -22,6 +24,54 @@ var tooltip_detail = d3.select("#detail");
 
 var topLeft = [0,0], bottomRight = [0,0];
 
+
+// helper function to retrieve query string
+// function getParameterByName(name, url) {
+//     if (!url) url = window.location.href;
+//     url = url.toLowerCase(); // This is just to avoid case sensitiveness  
+//     name = name.replace(/[\[\]]/g, "\\$&");
+//     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+//         results = regex.exec(url);
+//     if (!results) return null;
+//     if (!results[2]) return '';
+//     return decodeURIComponent(results[2].replace(/\+/g, " "));
+// }
+
+// var query1 = getParameterByName("content")
+// var query2 = getParameterByName("context")
+// var query3 = getParameterByName("insight")
+
+// console.log(query1, query2)
+
+// semantic ui
+var semanticVisible = true;
+
+// white overlay
+var mapVisible = true;
+
+// if (query1 == "business popularity" && query2 == "dashilar") {
+// 	semanticVisible = false;
+
+	// $(".desktop").css('display', 'inline');
+
+// 	$(".content").attr("value", query1);
+// 	$(".context").attr("value", query2);
+// 	$(".insight").attr("value", query3);
+
+// 	$("#option3").fadeIn();
+	
+// 	$(".insight").attr("autofocus", "autofocus");
+
+// 	updateData();
+
+// }else{
+
+// 	$(".content").attr("autofocus", "autofocus");
+// }
+
+
+
+
 var map = L.map('map').setView([39.8934, 116.384390666], 16);
 
 L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -32,8 +82,6 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_toke
 
 //create variables to store a reference to svg and g elements
 
-// white overlay
-var mapVisible = true;
 
 var svg_overlay = d3.select(map.getPanes().overlayPane).append("svg");
 
@@ -43,7 +91,6 @@ svg_overlay
 	.attr("height", "10000px")
 	.style("left", "-1000px")
 	.style("top", "-1000px")
-	.attr("display", "none") // toggle this value to turn map on and off
 	;
 
 svg_overlay.append("rect")
@@ -57,18 +104,16 @@ svg_overlay.append("rect")
 var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-// slider
-var div_slider = d3.select("body").append("div").attr("class", "slider");
-
-// semantic ui
-var semanticVisible = true;
-// select ui div from .html file
-// var div_semanticUI = d3.select("div.semantic");
 
 if (semanticVisible == true){
 	$(".semantic").fadeIn();
-	// div_semanticUI.style("visibility", "hidden");
+	$(".desktop").css('display', 'none');
 }
+
+if (mapVisible == true){
+	$(".map_overlay").fadeOut();
+}
+
 
 //HELPER FUNCTIONS
 
@@ -143,12 +188,29 @@ function updateMarkersBySlider(week){
 //adjusts visibility of semantic interface
 function toggleSemantic(){
 	if (semanticVisible == true){
-		$(".semantic").fadeOut();
-		// div_semanticUI.style("visibility", "hidden");
-		semanticVisible = false;
+		var option1 = $('.tt-input.content').typeahead('val');
+		var option2 = $('.tt-input.context').typeahead('val');
+		var option3 = $('.tt-input.insight').typeahead('val');
+		console.log(option1, option2, option3)
+
+		if (option1 == "business popularity" && option2 == "Dashilar") {
+			$(".desktop").css('display', 'inline');
+			$(".semantic").fadeOut();
+			semanticVisible = false;
+
+			if (option3 == "investment in BJDW") {
+				toggleMap();
+			}else{
+				updateData();
+			}
+		}
+
+
 	} else {
 		// div_semanticUI.style("visibility", "visible");
 		$(".semantic").fadeIn();
+		$("#option3").fadeIn();
+		$(".insight").focus();
 		semanticVisible = true;
 	}
 }
@@ -184,14 +246,18 @@ $(document).keyup(function (e) {
 });
 
 function checkKeys(e) {
-	console.log(e.which)
+	// console.log(e.which)
 	//if both ctrl and space is pressed, toggle semantic interface
-	if (keys.hasOwnProperty(17) && keys.hasOwnProperty(32)){
+	// if (keys.hasOwnProperty(17) && keys.hasOwnProperty(32)){
+	// 	toggleSemantic();
+	// }
+	if (keys.hasOwnProperty(13)){
 		toggleSemantic();
 	}
 	if (keys.hasOwnProperty(16) && keys.hasOwnProperty(32)){
 		toggleMap();
 	}
+
 }
 
 
@@ -263,7 +329,7 @@ function updateData(){
 	});
 };
 
-updateData();
+// updateData();
 
 
 //semantic UI autocomplete
@@ -271,13 +337,10 @@ updateData();
 var substringMatcher = function(strs) {
   return function findMatches(q, cb) {
     var matches, substringRegex;
-
     // an array that will be populated with substring matches
     matches = [];
-
     // regex used to determine if a string contains the substring `q`
     substrRegex = new RegExp(q, 'i');
-
     // iterate through the pool of strings and for any string that
     // contains the substring `q`, add it to the `matches` array
     $.each(strs, function(i, str) {

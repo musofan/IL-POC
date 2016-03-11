@@ -23,11 +23,14 @@
 </head>
 <body>
 
-	<div id="map"></div>
-
-	<div class="tooltip">
-		<p class="tooltip-text" id="title"></p>
-		<p class="tooltip-text" id="detail"></p>
+	<!-- <div class="desktop" style="display: none"> -->
+	<div class="desktop">
+		<div id="map"></div>
+		<div class="slider"></div>
+		<div class="tooltip">
+			<p class="tooltip-text" id="title"></p>
+			<p class="tooltip-text" id="detail"></p>
+		</div>
 	</div>
 
 	<div class="semantic" style="display: none">
@@ -41,17 +44,17 @@
 				<h1>Impact Learning</h1>	
 			</header>
 			<div class="main clearfix" id="semantic_form">
-				<form id="nl-form" class="nl-form">
+				<form id="nl-form" class="nl-form" action="http://localhost:5000" method="GET">
 					<p class="form_element">I would like to understand
-					<input class="content" type="text" placeholder="" autofocus="autofocus" ></p>
+					<input class="content" type="text" placeholder="" autofocus="autofocus" name="content"></p>
 					<p class="form_element">in
-					<input class="context" type="text" placeholder=""></p>
-					<p class="form_element">based on
-					<input class="insight" type="text" placeholder=""></p>
+					<input class="context" type="text" placeholder="" name="context"></p>
+					<p id="option3" class="form_element" style="display: none">based on
+					<input class="insight" type="text" placeholder="" name="insight"></p>
 					<!-- <div class="nl-submit-wrap">
-						<button class="nl-submit" type="submit">Start Learning</button>
+						<button class="nl-submit" type="submit">Submit</button>
 					</div> -->
-					<div class="nl-overlay"></div>
+					<!-- <div class="nl-overlay"></div> -->
 				</form>
 			</div>
 		</div>

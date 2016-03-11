@@ -33,6 +33,33 @@
 	/*-moz-appearance: none;*/
 }
 
+.nl-submit-wrap {
+	margin-left: 12.82em;
+	margin-top: 1.4em;
+}
+
+.nl-form .nl-submit {
+	line-height: 3;
+	text-transform: uppercase;
+	cursor: pointer;
+	position: relative;
+	background: #76C3BD;
+	color: #fff;
+	padding: 0 1em 0 0;
+	font-size: 40%;
+	font-weight: bold;
+	letter-spacing: 3px;
+}
+
+.nl-submit:before {
+	content: "\e001";
+	color: #fff;
+	float: left;
+	padding: 0 0.7em;
+	margin: 0 0.8em 0 0;
+	background: #69B1A9;
+}
+
 /*.clearfix:before, .clearfix:after { content: " "; display: table; }
 .clearfix:after { clear: both; }*/
 
@@ -63,6 +90,10 @@ div.semantic {
 	line-height: 1.3;
 	margin: 0;
 	font-weight: 300;
+}
+
+.tt-hint {
+  color: #777 !important
 }
 /*
 .container > header span {

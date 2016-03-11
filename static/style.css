@@ -29,6 +29,10 @@ rect.overlay{
 	fill: hsl(0, 0%, 93%);
 }
 
+div.desktop {
+	height: 100%;
+}
+
 div.tooltip{
 	padding: 6px;
 	background: white;
