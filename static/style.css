@@ -25,8 +25,12 @@ rect.marker:hover {
 	cursor: crosshair;
 }
 
-rect.map_overlay{
+rect.overlay{
 	fill: hsl(0, 0%, 93%);
+}
+
+div.desktop {
+	height: 100%;
 }
 
 div.tooltip{
@@ -41,6 +45,10 @@ p.tooltip-text{
 	padding: 0px;
 }
 
+#title{
+	font-weight: bold;
+}
+
 div.menu{
 	position: fixed;
 	margin: 0px;
@@ -48,7 +56,7 @@ div.menu{
 	top: 0px;
 	right: 0px;
 	width: 230px;
-	height: 230px;
+	height: 50px;
 	background: rgba(255,255,255,.8);
 	z-index: 30;
 }
@@ -76,6 +84,7 @@ em{
   color: red;
   font-weight: bold;
 }
+
 
 .axis text {
   font: 11px sans-serif;
@@ -111,3 +120,8 @@ em{
   fill-opacity: .125;
   shape-rendering: crispEdges;
 }
+
+head.tt-dropdown-menu {
+     display: none !important;
+}
+
