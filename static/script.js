@@ -82,16 +82,6 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 
-if (semanticVisible == true){
-	$(".semantic").fadeIn();
-	$(".desktop").css('display', 'none');
-}
-
-if (mapVisible == true){
-	$(".map_overlay").fadeOut();
-}
-
-
 
 var brush
 var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
@@ -183,8 +173,27 @@ function brushended() {
 	console.log(extent2[1])
 }
 
-// semantic ui
-// var semanticVisible = false;
+
+var semanticActive = false; //toggle to active semantic UI walkthrough
+
+if (semanticActive == false){
+	$(".desktop").css('display', 'inline');
+	$(".semantic").fadeOut();
+	semanticVisible = false;
+
+	updateData();
+	makeSlider();
+
+}
+
+if (semanticVisible == true){
+	$(".semantic").fadeIn();
+	$(".desktop").css('display', 'none');
+}
+
+if (mapVisible == true){
+	$(".map_overlay").fadeOut();
+}
 
 
 //HELPER FUNCTIONS
