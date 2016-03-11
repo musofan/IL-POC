@@ -28,7 +28,7 @@ var topLeft = [0,0], bottomRight = [0,0];
 // helper function to retrieve query string
 // function getParameterByName(name, url) {
 //     if (!url) url = window.location.href;
-//     url = url.toLowerCase(); // This is just to avoid case sensitiveness  
+//     url = url.toLowerCase(); // This is just to avoid case sensitiveness
 //     name = name.replace(/[\[\]]/g, "\\$&");
 //     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
 //         results = regex.exec(url);
@@ -167,10 +167,11 @@ function brushended() {
 
 	var extent2 = (extent1.map(function (d) {return Math.floor(weekIndexFormat(d)/7+1)}));
 
-	updateMarkersBySlider(extent2[0]);
+	weekIndex = extent2[0];
+	updateMarkers();
 
 	console.log(extent2[0])
-	console.log(extent2[1])
+	console.log(weekIndex)
 }
 
 
@@ -257,13 +258,6 @@ function updateMarkers(duration){
 	}
 
 }
-
-//adjusts markers by slider
-function updateMarkersBySlider(week){
-	// document.querySelector('#weekSelected').value = week
-	weekIndex = week
-	updateMarkers();
-};
 
 //adjusts visibility of semantic interface
 function toggleSemantic(){
@@ -470,6 +464,3 @@ $('#semantic_form .insight').typeahead({
   name: 'insight',
   source: substringMatcher(insight)
 });
-
-
-
