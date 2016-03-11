@@ -96,13 +96,27 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 // slider
 
+
 var div_slider = d3.select("body").append("div").attr("class", "slider");
 
 var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
+var weekIndexFormat = d3.time.format('%j')
 
-var margin = {top: 0, right: 10, bottom: 20, left: 10},
-    width = window.innerWidth-(margin.left+margin.right);
-  	height = (window.innerHeight*.19)-(margin.top+margin.bottom);
+var margin = {top: 10, right: 10, bottom: 20, left: 10};
+
+var width = $('.slider').width()-(margin.left+margin.right);
+var height = $('.slider').height()-(margin.top+margin.bottom);
+
+//function setSliderSize() {
+//  width = $('.slider').width()-(margin.left+margin.right);
+//	height = $('.slider').height()-(margin.top+margin.bottom);
+//	svg_slider.selectAll("g.x.axis")
+//		.call(d3.svg.axis());
+//
+//	console.log(width);
+//}
+
+//$(window).resize(setSliderSize);
 
 var x = d3.time.scale()
     .domain([timeFormat.parse('2015-01-01T00:00:00'), timeFormat.parse('2015-12-31T00:00:00')])
@@ -170,6 +184,11 @@ function brushended() {
   d3.select(this).transition()
       .call(brush.extent(extent1))
       .call(brush.event);
+
+	var extent2 = (extent1.map(function (d) {return Math.floor(weekIndexFormat(d)/7+1)}));
+
+	console.log(extent2[0])
+	console.log(extent2[1])
 }
 
 // semantic ui
