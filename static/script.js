@@ -41,35 +41,12 @@ var topLeft = [0,0], bottomRight = [0,0];
 // var query2 = getParameterByName("context")
 // var query3 = getParameterByName("insight")
 
-// console.log(query1, query2)
 
 // semantic ui
 var semanticVisible = true;
 
 // white overlay
 var mapVisible = true;
-
-// if (query1 == "business popularity" && query2 == "dashilar") {
-// 	semanticVisible = false;
-
-	// $(".desktop").css('display', 'inline');
-
-// 	$(".content").attr("value", query1);
-// 	$(".context").attr("value", query2);
-// 	$(".insight").attr("value", query3);
-
-// 	$("#option3").fadeIn();
-	
-// 	$(".insight").attr("autofocus", "autofocus");
-
-// 	updateData();
-
-// }else{
-
-// 	$(".content").attr("autofocus", "autofocus");
-// }
-
-
 
 
 var map = L.map('map').setView([39.8934, 116.384390666], 16);
@@ -113,6 +90,101 @@ if (semanticVisible == true){
 if (mapVisible == true){
 	$(".map_overlay").fadeOut();
 }
+
+
+
+var brush
+var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
+var weekIndexFormat = d3.time.format('%j')
+
+function makeSlider(){
+
+	var div_slider = d3.select(".slider");
+
+	var margin = {top: 10, right: 10, bottom: 20, left: 10};
+
+	var width = $('.slider').width()-(margin.left+margin.right);
+	var height = $('.slider').height()-(margin.top+margin.bottom);
+
+	var x = d3.time.scale()
+	    .domain([timeFormat.parse('2015-01-01T00:00:00'), timeFormat.parse('2015-12-31T00:00:00')])
+	    .range([0, width]);
+
+	brush = d3.svg.brush()
+	    .x(x)
+	    .extent([timeFormat.parse('2015-01-01T00:00:00'), timeFormat.parse('2015-01-07T00:00:00')])
+	    .on("brushend", brushended);
+
+	var svg_slider = div_slider.append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	svg_slider.append("rect")
+	    .attr("class", "grid-background")
+	    .attr("width", width)
+	    .attr("height", height);
+
+	svg_slider.append("g")
+	    .attr("class", "x grid")
+	    .attr("transform", "translate(0," + height + ")")
+	    .call(d3.svg.axis()
+	        .scale(x)
+	        .orient("bottom")
+	        .ticks(d3.time.thursday, 1)
+	        .tickSize(-height)
+	        .tickFormat(""))
+	  .selectAll(".tick")
+	    .classed("minor", function(d) { return d.getHours(); });
+
+	svg_slider.append("g")
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(0," + height + ")")
+	    .call(d3.svg.axis()
+	      .scale(x)
+	      .orient("bottom")
+	      .ticks(d3.time.months)
+	      .tickPadding(0))
+	  .selectAll("text")
+	    .attr("x", 6)
+	    .style("text-anchor", null);
+
+	var gBrush = svg_slider.append("g")
+	    .attr("class", "brush")
+	    .call(brush)
+	    .call(brush.event);
+
+	gBrush.selectAll("rect")
+	    .attr("height", height);
+
+}
+
+function brushended() {
+  if (!d3.event.sourceEvent) return; // only transition after input
+  var extent0 = brush.extent(),
+      extent1 = extent0.map(d3.time.thursday.round);
+
+  // if empty when rounded, use floor & ceil instead
+  if (extent1[0] >= extent1[1]) {
+    extent1[0] = d3.time.thursday.floor(extent0[0]);
+    extent1[1] = d3.time.thursday.ceil(extent0[1]);
+  }
+
+  d3.select(this).transition()
+      .call(brush.extent(extent1))
+      .call(brush.event);
+
+	var extent2 = (extent1.map(function (d) {return Math.floor(weekIndexFormat(d)/7+1)}));
+
+	updateMarkersBySlider(extent2[0]);
+
+	console.log(extent2[0])
+	console.log(extent2[1])
+}
+
+// semantic ui
+// var semanticVisible = false;
 
 
 //HELPER FUNCTIONS
@@ -179,9 +251,8 @@ function updateMarkers(duration){
 
 //adjusts markers by slider
 function updateMarkersBySlider(week){
-	document.querySelector('#weekSelected').value = week
+	// document.querySelector('#weekSelected').value = week
 	weekIndex = week
-
 	updateMarkers();
 };
 
@@ -200,8 +271,10 @@ function toggleSemantic(){
 
 			if (option3 == "investment in BJDW") {
 				toggleMap();
-			}else{
+			}
+			if ($("#option3").css("display") == "none"){
 				updateData();
+				makeSlider();
 			}
 		}
 
