@@ -161,12 +161,16 @@ function brushended() {
       .call(brush.extent(extent1))
       .call(brush.event);
 
-	var extent2 = (extent1.map(function (d) {return Math.floor(timeFormat(d)/7)+1}));
+	var extent2 = (extent1.map(function (d) {return Math.floor(timeFormat(d)/7)}));
 
 	updateMarkersBySlider(extent2[0]);
 
 	console.log(extent2)
 }
+
+$(window).on('resize', function(){
+	makeSlider();
+})
 
 var semanticActive = false; //toggle to active semantic UI walkthrough
 
