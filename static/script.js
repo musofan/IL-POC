@@ -166,8 +166,7 @@ function brushended() {
 
 	updateMarkersBySlider(extent2[0]);
 
-	console.log(brush.extent())
-	console.log(extent2)
+	console.log(extent2);
 }
 
 
