@@ -81,7 +81,7 @@ svg_overlay.append("rect")
 var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-
+//slider
 var brush
 var timeFormat = d3.time.format('%j');
 
@@ -126,6 +126,7 @@ function makeSlider(){
 
 	svg_slider.append("g")
 	    .attr("class", "x axis")
+			.on("click", function(){svg_slider.select(".brush").call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')])); extent2 = [0,52]; console.log(extent2);	updateMarkersBySlider(extent2[0]);})
 	    .attr("transform", "translate(0," + height + ")")
 	    .call(d3.svg.axis()
 	      .scale(x)
@@ -133,9 +134,9 @@ function makeSlider(){
 	      .ticks(d3.time.months)
 				.tickFormat(d3.time.format("%B"))
 	      .tickPadding(0))
-	  .selectAll("text")
-	    .attr("x", 6)
-	    .style("text-anchor", null);
+		  .selectAll("text")
+		    .attr("x", 6)
+		    .style("text-anchor", null);
 
 	var gBrush = svg_slider.append("g")
 	    .attr("class", "brush")
@@ -165,12 +166,11 @@ function brushended() {
 
 	updateMarkersBySlider(extent2[0]);
 
+	console.log(brush.extent())
 	console.log(extent2)
 }
 
-$(window).on('resize', function(){
-	makeSlider();
-})
+
 
 var semanticActive = false; //toggle to active semantic UI walkthrough
 

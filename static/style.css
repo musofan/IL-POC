@@ -90,10 +90,7 @@ em{
   font: 11px sans-serif;
 }
 
-.axis path {
-  display: none;
-}
-
+.axis path,
 .axis line {
   fill: none;
   stroke: #000;
@@ -124,4 +121,3 @@ em{
 head.tt-dropdown-menu {
      display: none !important;
 }
-
