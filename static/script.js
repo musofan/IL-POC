@@ -126,13 +126,14 @@ function makeSlider(){
 
 	svg_slider.append("g")
 	    .attr("class", "x axis")
-			.on("click", function(){svg_slider.select(".brush").call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')])); extent2 = [0,52]; console.log(extent2);	updateMarkersBySlider(extent2[0]);})
+			.on("click", function(){
+				svg_slider.select(".brush").transition().call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')])); extent2 = [0,52]; console.log(extent2);	updateMarkersBySlider(extent2[0]);})
 	    .attr("transform", "translate(0," + height + ")")
 	    .call(d3.svg.axis()
 	      .scale(x)
 	      .orient("bottom")
 	      .ticks(d3.time.months)
-				.tickFormat(d3.time.format("%B"))
+				.tickFormat(d3.time.format("%b"))
 	      .tickPadding(0))
 		  .selectAll("text")
 		    .attr("x", 6)
