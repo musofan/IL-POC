@@ -127,7 +127,7 @@ function makeSlider(){
 	svg_slider.append("g")
 	    .attr("class", "x axis")
 			.on("click", function(){
-				svg_slider.select(".brush").transition().call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')])); extent2 = [0,52]; console.log(extent2);	updateMarkersBySlider(extent2[0]);})
+				svg_slider.select(".brush").transition().call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')])); extent2 = [0,52]; console.log(extent2);	updateMarkersBySlider(extent2);})
 	    .attr("transform", "translate(0," + height + ")")
 	    .call(d3.svg.axis()
 	      .scale(x)
@@ -165,7 +165,7 @@ function brushended() {
 
 	var extent2 = (extent1.map(function (d) {return Math.floor(timeFormat(d)/7)}));
 
-	updateMarkersBySlider(extent2[0]);
+	updateMarkersBySlider(extent2);
 
 	console.log(extent2);
 }
@@ -205,7 +205,13 @@ function rect_getProperty(property, d, weekIndex){
 		if (weekIndex == 0){
 			return Math.pow(d.properties.count,sizeFactor) * sizeMultiplier/1.5 + sizeMin;
 		} else {
-			return Math.pow(d.properties.weeklyCounts[weekIndex],sizeFactor) * sizeMultiplier + sizeMin;
+			sum = 0;
+			subset = d.properties.weeklyCounts.slice(weekIndex[0],weekIndex[1]);
+			for (var i = 0; i < subset.length; i++) {
+				sum += parseInt(subset[i]);
+			}
+			console.log(sum);
+			return Math.pow(sum,sizeFactor) * sizeMultiplier + sizeMin;
 		}
 	}
 
@@ -256,9 +262,9 @@ function updateMarkers(duration){
 }
 
 //adjusts markers by slider
-function updateMarkersBySlider(week){
+function updateMarkersBySlider(weeks){
 	// document.querySelector('#weekSelected').value = week
-	weekIndex = week
+	weekIndex = weeks
 	updateMarkers();
 };
 
