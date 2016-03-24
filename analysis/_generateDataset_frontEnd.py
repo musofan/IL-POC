@@ -17,7 +17,6 @@ counts = {}
 
 delim = ';'
 
-
 placesData = {}
 
 with open(workingDirectory +  "\\dashilar.txt", 'r') as f:
@@ -28,6 +27,8 @@ with open(workingDirectory +  "\\dashilar.txt", 'r') as f:
 for entry in entries:
 	features = entry.split(delim)
 	place_id = features[0]
+
+	print "processing:", place_id, features[6]
 
 	placesData[place_id] = {'lat': features[15], 'lng': features[16], 'cat': features[5], 'title': features[6], 'count': features[21]}
 
@@ -120,7 +121,7 @@ for entry in entries:
 				counts[place_id][dateTag] += 1
 
 
-
+# sort place id's
 ids = counts.keys()
 ids = [int(x) for x in ids]
 ids.sort()
@@ -131,31 +132,84 @@ print "number of places:", len(counts.keys())
 # print sum([counts[ids[1]][x] for x in counts[ids[1]].keys()])
 
 
+# generate weekly dataset
+dataSet = "ID;title;cat;lat;lng;count;weeks\n"
 
-dataSet = "ID;title;cat;lat;lng;count;time\n"
-
+#get weekly counts
 for _id in ids:
 
-	s = ";".join([_id, placesData[_id]['title'], placesData[_id]['cat'], placesData[_id]['lat'], placesData[_id]['lng'], placesData[_id]['count']])
+	# s1 = ";".join([_id, placesData[_id]['title'], placesData[_id]['cat'], placesData[_id]['lat'], placesData[_id]['lng'], placesData[_id]['count']])
+	s1 = ";".join([_id, placesData[_id]['title'], placesData[_id]['cat'], placesData[_id]['lat'], placesData[_id]['lng']])
 
-	timeSet = [0] * 54
+	timeSet = [0] * 52
+
+	count_2015 = 0
 
 	for key in counts[_id].keys():
 
 		date = datetime.datetime.strptime(key, '%y-%m-%d')
 		# DOY = int(date.strftime('%j'))
 		# DOW = int(date.strftime('%w'))
-		WOY = int(date.strftime('%U'))
+		year = int(date.strftime('%Y'))
 
-		timeSet[WOY] += 1
+		if year == 2015:
+			WOY = int(date.strftime('%U'))
+			if WOY == 0:
+				WOY = 1
+			if WOY == 53:
+				WOY = 52
+
+			timeSet[WOY-1] += 1
+			count_2015 += 1
+
+	s1 += ";" + str(count_2015)
 
 	s2 = ";".join([str(x) for x in timeSet])
 
-	dataSet += s + ";" + s2 + "\n"
+	dataSet += s1 + ";" + s2 + "\n"
 
 print "number of datapoints:", len(dataSet.split("\n"))
 # print dataSet[0]
 
-
 with open(workingDirectory + "\\dashilar_data.txt", 'wb') as f:
+	f.write(dataSet)
+
+
+
+# generate daily category counts
+categories = [1,2,3,4,5,6]
+
+
+category_counts = {}
+
+for cat in categories:
+	category_counts[cat] = [0] * 365
+
+dataSet = ";".join([str(x) for x in categories]) + "\n"
+
+# get daily category counts
+for _id in ids:
+
+	cat =  int(placesData[_id]['cat'])
+
+	for key in counts[_id].keys():
+
+		date = datetime.datetime.strptime(key, '%y-%m-%d')
+		# DOY = int(date.strftime('%j'))
+		# DOW = int(date.strftime('%w'))
+		year = int(date.strftime('%Y'))
+
+		if year == 2015:
+			DOY = int(date.strftime('%j'))
+			category_counts[cat][DOY-1] += 1
+
+for day in range(365):
+	data = []
+	for cat in categories:
+		data.append(category_counts[cat][day])
+
+	dataSet += ";".join([str(x) for x in data]) + "\n"
+
+
+with open(workingDirectory + "\\dashilar_data_categoryCounts.txt", 'wb') as f:
 	f.write(dataSet)
