@@ -81,9 +81,10 @@ svg_overlay.append("rect")
 var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-//slider
+//slider and area charts
 var brush
 var timeFormat = d3.time.format('%j');
+var parseDate = d3.time.format('%m-%d-%Y').parse;
 
 function makeSlider(){
 
@@ -95,19 +96,85 @@ function makeSlider(){
 	var height = $('.slider').height()-(margin.top+margin.bottom);
 
 	var x = d3.time.scale()
-	    .domain([timeFormat.parse('0'), timeFormat.parse('364')])
-	    .range([0, width])
-;
+	    .domain([parseDate('01-01-2015'), parseDate('12-30-2015')])
+	    .range([0, width]);
+
+	var y = d3.scale.linear()
+			.range([height, 0]);
+
 	brush = d3.svg.brush()
 	    .x(x)
-	    .extent([timeFormat.parse('0'), timeFormat.parse('7')])
+	    .extent([parseDate('01-01-2015'),parseDate('01-07-2015')])
 	    .on("brushend", brushended);
 
 	var svg_slider = div_slider.append("svg")
 	    .attr("width", width + margin.left + margin.right)
 	    .attr("height", height + margin.top + margin.bottom)
-	  .append("g")
+	  	.append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	var color = d3.scale.category20();
+
+	var area = d3.svg.area()
+		.interpolate("monotone")
+		.x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+	var stack = d3.layout.stack()
+    .values(function(d) { return d.values; });
+
+		//area charts portion
+		d3.csv("./static/dashilar_data_categoryCounts_withDateSummed.csv", function(error, data2) {
+		  if (error) throw error;
+
+		  color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
+
+		  data2.forEach(function(d) {
+		    d.date = parseDate(d.date);
+		  });
+
+		  var areaGraphs = stack(color.domain().map(function(name) {
+		    return {
+		      name: name,
+		      values: data2.map(function(d) {
+		        return {date: d.date, y: +d[name]};
+		      })
+		    };
+		  }));
+
+			console.log(areaGraphs);
+
+//		  x.domain(d3.extent(data2, function(d) { return d.date; }));
+			y.domain([0, 6500]);
+
+		  var areaGraph = svg_slider.selectAll(".areaGraph")
+		      .data(areaGraphs)
+		    	.enter().append("g")
+		      .attr("class", "areaGraph");
+
+		  areaGraph.append("path")
+		      .attr("class", "area")
+		      .attr("d", function(d) { return area(d.values); })
+		      .style("fill", function(d) { return colors.Spectral[7][d.name]; });
+
+	//	  areaGraph.append("text")
+	//	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+	//	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+	//	      .attr("x", -6)
+	//	      .attr("dy", ".35em")
+	//	      .text(function(d) { return d.name; });
+
+	//	  svg.append("g")
+	//	      .attr("class", "x axis")
+	//	      .attr("transform", "translate(0," + height + ")")
+	//	      .call(xAxis);
+
+	//	  svg.append("g")
+	//	      .attr("class", "y axis")
+	//	      .call(yAxis);
+		});
+
 
 	svg_slider.append("rect")
 	    .attr("class", "grid-background")
@@ -120,14 +187,20 @@ function makeSlider(){
 	    .call(d3.svg.axis()
 	        .scale(x)
 	        .orient("bottom")
-	        .ticks(d3.time.weeks)
+	        .ticks(d3.time.thursday)
 	        .tickSize(-height)
 	        .tickFormat(""));
 
 	svg_slider.append("g")
 	    .attr("class", "x axis")
 			.on("click", function(){
-				svg_slider.select(".brush").transition().call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')])); extent2 = [0,52]; console.log(extent2);	updateMarkersBySlider(extent2);})
+				svg_slider.select(".brush")
+					.transition()
+					.call(brush.extent([parseDate('01-01-2015'), parseDate('12-30-2015')]));
+					extent2 = [0,52];
+					console.log(extent2);
+					updateMarkersBySlider(extent2);
+				})
 	    .attr("transform", "translate(0," + height + ")")
 	    .call(d3.svg.axis()
 	      .scale(x)
@@ -151,12 +224,12 @@ function makeSlider(){
 function brushended() {
   if (!d3.event.sourceEvent) return; // only transition after input
   var extent0 = brush.extent(),
-      extent1 = extent0.map(d3.time.week.round);
+      extent1 = extent0.map(d3.time.thursday.round);
 
   // if empty when rounded, use floor & ceil instead
   if (extent1[0] >= extent1[1]) {
-    extent1[0] = d3.time.week.floor(extent0[0]);
-    extent1[1] = d3.time.week.ceil(extent0[1]);
+    extent1[0] = d3.time.thursday.floor(extent0[0]);
+    extent1[1] = d3.time.thursday.ceil(extent0[1]);
   }
 
   d3.select(this).transition()
@@ -169,6 +242,8 @@ function brushended() {
 
 	console.log(extent2);
 }
+
+
 
 
 
