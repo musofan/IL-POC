@@ -156,7 +156,7 @@ function makeSlider(){
 		  areaGraph.append("path")
 		      .attr("class", "area")
 		      .attr("d", function(d) { return area(d.values); })
-		      .style("fill", function(d) { return color(d.name); });
+		      .style("fill", function(d) { return colors.Spectral[7][d.name]; });
 
 	//	  areaGraph.append("text")
 	//	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
