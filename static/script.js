@@ -96,8 +96,8 @@ function makeSlider(){
 
 	var x = d3.time.scale()
 	    .domain([timeFormat.parse('0'), timeFormat.parse('364')])
-	    .range([0, width]);
-
+	    .range([0, width])
+;
 	brush = d3.svg.brush()
 	    .x(x)
 	    .extent([timeFormat.parse('0'), timeFormat.parse('7')])
@@ -309,13 +309,34 @@ function toggleMap(){
 		$(".map_overlay").fadeIn();
 		// svg_overlay.attr("visibility", "visible");
 		mapVisible = false;
+		// disable zoom
+		map.dragging.disable();
+		map.touchZoom.disable();
+		map.doubleClickZoom.disable();
+		map.scrollWheelZoom.disable();
+		map.boxZoom.disable();
+		map.keyboard.disable();
+		if (map.tap) map.tap.disable();
+		document.getElementById('map').style.cursor='default';
 	} else {
 		$(".map_overlay").fadeOut();
 		// svg_overlay.attr("visibility", "hidden");
 		mapVisible = true;
+		// enable zoom
+		map.dragging.enable();
+		map.touchZoom.enable();
+		map.doubleClickZoom.enable();
+		map.scrollWheelZoom.enable();
+		map.boxZoom.enable();
+		map.keyboard.enable();
+		if (map.tap) map.tap.enable();
+		document.getElementById('map').style.cursor='grab';
 	}
 	updateMarkers(duration = 1000);
 }
+
+
+
 
 //keyboard handling
 //http://stackoverflow.com/questions/4954403/can-jquery-keypress-detect-more-than-one-key-at-the-same-time
