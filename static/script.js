@@ -181,7 +181,7 @@ function makeSlider(){
 	    return {
 	      name: name,
 	      values: data2.map(function(d) {
-	        return {date: d.date, y: d[name]};
+	        return {date: d.date, y: +d[name]};
 	      })
 	    };
 	  }));
