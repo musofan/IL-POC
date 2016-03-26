@@ -84,8 +84,9 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 //slider and area charts
 var brush
 var timeFormat = d3.time.format('%j');
+
+var timeFormat2 = d3.time.format('%m-%d-%Y')
 		formatPercent = d3.format(".0%");
-		parseData =
 
 function makeSlider(){
 
@@ -168,25 +169,25 @@ function makeSlider(){
 	    .attr("height", height);
 
 	//area charts portion
-	d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data) {
+	d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data2) {
 	  if (error) throw error;
 
-	  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+	  color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
 
-	  data.forEach(function(d) {
-	    d.date = timeFormat(d.date).parse;
+	  data2.forEach(function(d) {
+	    d.date = timeFormat2(d.date).parse;
 	  });
 
 	  var browsers = stack(color.domain().map(function(name) {
 	    return {
 	      name: name,
-	      values: data.map(function(d) {
+	      values: data2.map(function(d) {
 	        return {date: d.date, y: d[name] / 100};
 	      })
 	    };
 	  }));
 
-	  x.domain(d3.extent(data, function(d) { return d.date; }));
+	  x.domain(d3.extent(data2, function(d) { return d.date; }));
 
 	  var browser = svg_slider.selectAll(".browser")
 	      .data(browsers)
