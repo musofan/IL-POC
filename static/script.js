@@ -113,7 +113,7 @@ function makeSlider(){
 	  	.append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	var color = d3.scale.category20();
+	type = d3.scale.ordinal();
 
 	var area = d3.svg.area()
 		.interpolate("monotone")
@@ -128,13 +128,13 @@ function makeSlider(){
 		d3.csv("./static/dashilar_data_categoryCounts_withDateSummed.csv", function(error, data2) {
 		  if (error) throw error;
 
-		  color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
+		  type.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
 
 		  data2.forEach(function(d) {
 		    d.date = parseDate(d.date);
 		  });
 
-		  var areaGraphs = stack(color.domain().map(function(name) {
+		  var areaGraphs = stack(type.domain().map(function(name) {
 		    return {
 		      name: name,
 		      values: data2.map(function(d) {
@@ -340,7 +340,7 @@ function updateMarkers(duration){
 function updateMarkersBySlider(weeks){
 	// document.querySelector('#weekSelected').value = week
 	weekIndex = weeks
-	updateMarkers();
+	updateMarkers(1000);
 };
 
 //adjusts visibility of semantic interface
