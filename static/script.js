@@ -81,7 +81,7 @@ svg_overlay.append("rect")
 var svg = d3.select(map.getPanes().overlayPane).append("svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-//slider
+//slider and area charts
 var brush
 var timeFormat = d3.time.format('%j');
 
@@ -108,6 +108,13 @@ function makeSlider(){
 	    .attr("height", height + margin.top + margin.bottom)
 	  .append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	var area = d3.svg.area()
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+var stack = d3.layout.stack()
+    .values(function(d) { return d.values; });
 
 	svg_slider.append("rect")
 	    .attr("class", "grid-background")
@@ -146,6 +153,55 @@ function makeSlider(){
 
 	gBrush.selectAll("rect")
 	    .attr("height", height);
+
+	//area charts portion
+	d3.csv("dashilar_data_categoryCounts_withDate.csv", function(error, data) {
+	  if (error) throw error;
+
+	  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+	  data.forEach(function(d) {
+	    d.date = parseDate(d.date);
+	  });
+
+	  var browsers = stack(color.domain().map(function(name) {
+	    return {
+	      name: name,
+	      values: data.map(function(d) {
+	        return {date: d.date, y: d[name] / 100};
+	      })
+	    };
+	  }));
+
+	  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+	  var browser = svg_slider.selectAll(".browser")
+	      .data(browsers)
+	    .enter().append("g")
+	      .attr("class", "browser");
+
+	  browser.append("path")
+	      .attr("class", "area")
+	      .attr("d", function(d) { return area(d.values); })
+	      .style("fill", function(d) { return color(d.name); });
+
+	  browser.append("text")
+	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+	      .attr("x", -6)
+	      .attr("dy", ".35em")
+	      .text(function(d) { return d.name; });
+
+	  svg.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis);
+
+	  svg.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis);
+	});
+
 }
 
 function brushended() {
@@ -169,6 +225,8 @@ function brushended() {
 
 	console.log(extent2);
 }
+
+
 
 
 
