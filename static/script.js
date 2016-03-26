@@ -84,9 +84,7 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 //slider and area charts
 var brush
 var timeFormat = d3.time.format('%j');
-
-var timeFormat2 = d3.time.format('%m-%d-%Y')
-		formatPercent = d3.format(".0%");
+var parseDate = d3.time.format('%m-%d-%Y').parse;
 
 function makeSlider(){
 
@@ -112,12 +110,13 @@ function makeSlider(){
 	var svg_slider = div_slider.append("svg")
 	    .attr("width", width + margin.left + margin.right)
 	    .attr("height", height + margin.top + margin.bottom)
-	  .append("g")
+	  	.append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	var color = d3.scale.category20();
 
 	var area = d3.svg.area()
+		.interpolate("monotone")
     .y0(function(d) { return y(d.y0); })
     .y1(function(d) { return y(d.y0 + d.y); });
 
@@ -169,51 +168,53 @@ function makeSlider(){
 	    .attr("height", height);
 
 	//area charts portion
-	d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data2) {
+	d3.csv("./static/dashilar_data_categoryCounts_withDateSummed.csv", function(error, data2) {
 	  if (error) throw error;
 
 	  color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
 
 	  data2.forEach(function(d) {
-	    d.date = timeFormat2(d.date).parse;
+	    d.date = parseDate(d.date);
 	  });
 
-	  var browsers = stack(color.domain().map(function(name) {
+	  var areaGraphs = stack(color.domain().map(function(name) {
 	    return {
 	      name: name,
 	      values: data2.map(function(d) {
-	        return {date: d.date, y: d[name] / 100};
+	        return {date: d.date, y: d[name]};
 	      })
 	    };
 	  }));
 
+		console.log(areaGraphs);
+
 	  x.domain(d3.extent(data2, function(d) { return d.date; }));
 
-	  var browser = svg_slider.selectAll(".browser")
-	      .data(browsers)
-	    .enter().append("g")
+	  var areaGraph = svg_slider.selectAll(".areaGraph")
+	      .data(areaGraphs)
+	    	.enter().append("g")
 	      .attr("class", "browser");
 
-	  browser.append("path")
+	  areaGraph.append("path")
 	      .attr("class", "area")
 	      .attr("d", function(d) { return area(d.values); })
 	      .style("fill", function(d) { return color(d.name); });
 
-	  browser.append("text")
-	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
-	      .attr("x", -6)
-	      .attr("dy", ".35em")
-	      .text(function(d) { return d.name; });
+//	  areaGraph.append("text")
+//	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+//	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+//	      .attr("x", -6)
+//	      .attr("dy", ".35em")
+//	      .text(function(d) { return d.name; });
 
-	  svg.append("g")
-	      .attr("class", "x axis")
-	      .attr("transform", "translate(0," + height + ")")
-	      .call(xAxis);
+//	  svg.append("g")
+//	      .attr("class", "x axis")
+//	      .attr("transform", "translate(0," + height + ")")
+//	      .call(xAxis);
 
-	  svg.append("g")
-	      .attr("class", "y axis")
-	      .call(yAxis);
+//	  svg.append("g")
+//	      .attr("class", "y axis")
+//	      .call(yAxis);
 	});
 
 }
