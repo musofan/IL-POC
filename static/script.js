@@ -84,6 +84,8 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 //slider and area charts
 var brush
 var timeFormat = d3.time.format('%j');
+		formatPercent = d3.format(".0%");
+		parseData =
 
 function makeSlider(){
 
@@ -98,6 +100,9 @@ function makeSlider(){
 	    .domain([timeFormat.parse('0'), timeFormat.parse('364')])
 	    .range([0, width]);
 
+	var y = d3.scale.linear()
+			.range([height, 0]);
+
 	brush = d3.svg.brush()
 	    .x(x)
 	    .extent([timeFormat.parse('0'), timeFormat.parse('7')])
@@ -109,11 +114,13 @@ function makeSlider(){
 	  .append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+	var color = d3.scale.category20();
+
 	var area = d3.svg.area()
     .y0(function(d) { return y(d.y0); })
     .y1(function(d) { return y(d.y0 + d.y); });
 
-var stack = d3.layout.stack()
+	var stack = d3.layout.stack()
     .values(function(d) { return d.values; });
 
 	svg_slider.append("rect")
@@ -134,7 +141,13 @@ var stack = d3.layout.stack()
 	svg_slider.append("g")
 	    .attr("class", "x axis")
 			.on("click", function(){
-				svg_slider.select(".brush").transition().call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')])); extent2 = [0,52]; console.log(extent2);	updateMarkersBySlider(extent2);})
+				svg_slider.select(".brush")
+					.transition()
+					.call(brush.extent([timeFormat.parse('0'), timeFormat.parse('364')]));
+					extent2 = [0,52];
+					console.log(extent2);
+					updateMarkersBySlider(extent2);
+				})
 	    .attr("transform", "translate(0," + height + ")")
 	    .call(d3.svg.axis()
 	      .scale(x)
@@ -155,13 +168,13 @@ var stack = d3.layout.stack()
 	    .attr("height", height);
 
 	//area charts portion
-	d3.csv("dashilar_data_categoryCounts_withDate.csv", function(error, data) {
+	d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data) {
 	  if (error) throw error;
 
 	  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
 
 	  data.forEach(function(d) {
-	    d.date = parseDate(d.date);
+	    d.date = timeFormat(d.date).parse;
 	  });
 
 	  var browsers = stack(color.domain().map(function(name) {
@@ -367,13 +380,36 @@ function toggleMap(){
 		$(".map_overlay").fadeIn();
 		// svg_overlay.attr("visibility", "visible");
 		mapVisible = false;
+		// re-center
+		map.setView([39.8934, 116.384390666], 16);
+		// disable zoom
+		map.dragging.disable();
+		map.touchZoom.disable();
+		map.doubleClickZoom.disable();
+		map.scrollWheelZoom.disable();
+		map.boxZoom.disable();
+		map.keyboard.disable();
+		if (map.tap) map.tap.disable();
+		document.getElementById('map').style.cursor='default';
 	} else {
 		$(".map_overlay").fadeOut();
 		// svg_overlay.attr("visibility", "hidden");
 		mapVisible = true;
+		// enable zoom
+		map.dragging.enable();
+		map.touchZoom.enable();
+		map.doubleClickZoom.enable();
+		map.scrollWheelZoom.enable();
+		map.boxZoom.enable();
+		map.keyboard.enable();
+		if (map.tap) map.tap.enable();
+		document.getElementById('map').style.cursor='grab';
 	}
 	updateMarkers(duration = 1000);
 }
+
+
+
 
 //keyboard handling
 //http://stackoverflow.com/questions/4954403/can-jquery-keypress-detect-more-than-one-key-at-the-same-time
