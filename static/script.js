@@ -309,6 +309,8 @@ function toggleMap(){
 		$(".map_overlay").fadeIn();
 		// svg_overlay.attr("visibility", "visible");
 		mapVisible = false;
+		// re-center
+		map.setView([39.8934, 116.384390666], 16);
 		// disable zoom
 		map.dragging.disable();
 		map.touchZoom.disable();
