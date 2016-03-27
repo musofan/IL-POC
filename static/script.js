@@ -149,7 +149,7 @@ function makeSlider(){
 		  }));
 			console.log(areaGraphs);
 
-			y.domain([0, 50]);
+			y.domain([0, 30]);
 
 			svg_slider.append("rect")
 			    .attr("class", "grid-background")
