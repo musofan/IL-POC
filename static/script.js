@@ -96,8 +96,8 @@ function makeSlider(){
 	var height = $('.slider').height()-(margin.top+margin.bottom);
 
 	var x = d3.time.scale()
-		.domain([parseDate('01-01-2015'), parseDate('12-30-2015')])
-		.range([0, width]);
+	    .domain([parseDate('01-01-2015'), parseDate('12-31-2015')])
+	    .range([0, width]);
 
 	var y = d3.scale.linear()
 			.range([height, 0]);
@@ -123,7 +123,7 @@ function makeSlider(){
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 	;
 
-	var color = d3.scale.category20();
+	type = d3.scale.ordinal();
 
 	var area = d3.svg.area()
 		.interpolate("monotone")
@@ -135,18 +135,23 @@ function makeSlider(){
 	var stack = d3.layout.stack()
 		.values(function(d) { return d.values; });
 
-	//area charts portion
+	var line = d3.svg.line()
+			.interpolate("monotone")
+			.x(function(d) { return x(d.date);})
+			.y(function(d) { return y(d.y0+d.y); });
 
+	//CSV function generates charts and gridlines
 	d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data2) {
+
 		if (error) throw error;
 
-		color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
+		type.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
 
 		data2.forEach(function(d) {
 			d.date = parseDate(d.date);
 		});
 
-		var areaGraphs = stack(color.domain().map(function(name) {
+		var areaGraphs = stack(type.domain().map(function(name) {
 			return {
 				name: name,
 				values: data2.map(function(d) {
@@ -155,7 +160,7 @@ function makeSlider(){
 			};
 		}));
 
-		y.domain([0, 100]);
+		y.domain([0, 30]);
 
 		var areaGraph = g_slider.selectAll(".areaGraph")
 			.data(areaGraphs)
@@ -166,7 +171,17 @@ function makeSlider(){
 		  .attr("class", "area")
 		  .attr("d", function(d) { return area(d.values); })
 		  .style("fill", function(d) { return colors.Spectral[7][d.name]; });
-		});
+
+		var areaGraphLine = g_slider.selectAll(".areaGraphLine")
+			.data(areaGraphs)
+			.enter().append("g")
+			.attr("class", "areaGraphLine");
+
+		areaGraphLine.append("path")
+			.attr("class", "line")
+ 			.attr("d", function(d) { return line(d.values); })
+			.style("stroke", function(d) { return colors.Spectral[7][d.name]; });
+	});
 
 
 	var slider_rec = g_slider.append("rect")
@@ -252,6 +267,10 @@ function makeSlider(){
 		g_slider.selectAll(".area")
 			.attr("d", function(d) { return area(d.values); })
 		;
+
+		g_slider.selectAll(".line")
+			.attr("d", function(d) { return area(d.values); })
+		;
 	}
 
 }
@@ -277,10 +296,6 @@ function brushended() {
 
 	console.log(extent2);
 }
-
-
-
-
 
 var semanticActive = false; //toggle to active semantic UI walkthrough
 
