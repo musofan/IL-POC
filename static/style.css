@@ -123,7 +123,16 @@ em{
 .brush .extent {
   stroke: #000;
   fill-opacity: .125;
-  shape-rendering: crispEdges;
+  shape-rendering: geometricPrecision;
+}
+
+.areaGraph {
+  fill-opacity: .5;
+}
+
+.areaGraphLine {
+  fill-opacity: 0;
+	stroke-opacity: 1;
 }
 
 head.tt-dropdown-menu {
