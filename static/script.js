@@ -96,7 +96,7 @@ function makeSlider(){
 	var height = $('.slider').height()-(margin.top+margin.bottom);
 
 	var x = d3.time.scale()
-	    .domain([parseDate('01-01-2015'), parseDate('12-30-2015')])
+	    .domain([parseDate('01-01-2015'), parseDate('12-31-2015')])
 	    .range([0, width]);
 
 	var y = d3.scale.linear()
@@ -124,8 +124,13 @@ function makeSlider(){
 	var stack = d3.layout.stack()
     .values(function(d) { return d.values; });
 
+	var line = d3.svg.line()
+			.interpolate("monotone")
+			.x(function(d) { return x(d.date);})
+			.y(function(d) { return y(d.y0+d.y); });
+
 		//area charts portion
-		d3.csv("./static/dashilar_data_categoryCounts_withDateSummed.csv", function(error, data2) {
+		d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data2) {
 		  if (error) throw error;
 
 		  type.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
@@ -146,17 +151,33 @@ function makeSlider(){
 			console.log(areaGraphs);
 
 //		  x.domain(d3.extent(data2, function(d) { return d.date; }));
-			y.domain([0, 6500]);
+			y.domain([0, 50]);
 
-		  var areaGraph = svg_slider.selectAll(".areaGraph")
+			svg_slider.append("rect")
+					    .attr("class", "grid-background")
+					    .attr("width", width)
+					    .attr("height", height);
+
+			var areaGraph = svg_slider.selectAll(".areaGraph")
 		      .data(areaGraphs)
 		    	.enter().append("g")
-		      .attr("class", "areaGraph");
+						.attr("class", "areaGraph");
 
-		  areaGraph.append("path")
+			areaGraph.append("path")
 		      .attr("class", "area")
 		      .attr("d", function(d) { return area(d.values); })
 		      .style("fill", function(d) { return colors.Spectral[7][d.name]; });
+
+			var areaGraphLine = svg_slider.selectAll(".areaGraphLine")
+							.data(areaGraphs)
+							.enter().append("g")
+								.attr("class", "areaGraphLine");
+
+		areaGraphLine.append("path")
+							.attr("class", "line")
+							.attr("d", function(d) { return line(d.values); })
+							.style("stroke", function(d) { return colors.Spectral[7][d.name]; });
+//							.style("stroke", "white");
 
 	//	  areaGraph.append("text")
 	//	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
@@ -173,13 +194,6 @@ function makeSlider(){
 	//	  svg.append("g")
 	//	      .attr("class", "y axis")
 	//	      .call(yAxis);
-		});
-
-
-	svg_slider.append("rect")
-	    .attr("class", "grid-background")
-	    .attr("width", width)
-	    .attr("height", height);
 
 	svg_slider.append("g")
 	    .attr("class", "x grid")
@@ -196,7 +210,7 @@ function makeSlider(){
 			.on("click", function(){
 				svg_slider.select(".brush")
 					.transition()
-					.call(brush.extent([parseDate('01-01-2015'), parseDate('12-30-2015')]));
+					.call(brush.extent([parseDate('01-01-2015'), parseDate('12-31-2015')]));
 					extent2 = [0,52];
 					console.log(extent2);
 					updateMarkersBySlider(extent2);
@@ -219,7 +233,8 @@ function makeSlider(){
 
 	gBrush.selectAll("rect")
 	    .attr("height", height);
-}
+	});
+	}
 
 function brushended() {
   if (!d3.event.sourceEvent) return; // only transition after input
@@ -242,10 +257,6 @@ function brushended() {
 
 	console.log(extent2);
 }
-
-
-
-
 
 var semanticActive = false; //toggle to active semantic UI walkthrough
 
