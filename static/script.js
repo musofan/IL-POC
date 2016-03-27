@@ -137,7 +137,7 @@ function makeSlider(){
 
 	//area charts portion
 
-	d3.csv("./static/dashilar_data_categoryCounts_withDateSummed.csv", function(error, data2) {
+	d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data2) {
 		if (error) throw error;
 
 		color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
@@ -155,7 +155,7 @@ function makeSlider(){
 			};
 		}));
 
-		y.domain([0, 6500]);
+		y.domain([0, 100]);
 
 		var areaGraph = g_slider.selectAll(".areaGraph")
 			.data(areaGraphs)
