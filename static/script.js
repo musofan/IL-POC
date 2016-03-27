@@ -96,145 +96,180 @@ function makeSlider(){
 	var height = $('.slider').height()-(margin.top+margin.bottom);
 
 	var x = d3.time.scale()
-	    .domain([parseDate('01-01-2015'), parseDate('12-30-2015')])
-	    .range([0, width]);
+		.domain([parseDate('01-01-2015'), parseDate('12-30-2015')])
+		.range([0, width]);
 
 	var y = d3.scale.linear()
 			.range([height, 0]);
 
 	brush = d3.svg.brush()
-	    .x(x)
-	    .extent([parseDate('01-01-2015'),parseDate('01-07-2015')])
-	    .on("brushend", brushended);
+		.x(x)
+		.extent([parseDate('01-01-2015'),parseDate('01-07-2015')])
+		.on("brushend", brushended);
 
-	var svg_slider = div_slider.append("svg")
-	    .attr("width", width + margin.left + margin.right)
-	    .attr("height", height + margin.top + margin.bottom)
-	  	.append("g")
-	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	var svg_slider = div_slider
+		// .classed("svg-container", true)
+		.append("svg")
+		// .attr("preserveAspectRatio", "xMinYMin meet")
+		// .attr("preserveAspectRatio", "none")
+		// .attr("viewBox", "0 0 " + width + " " + height)
+		// .attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		// .classed("svg-content-responsive", true)
+		;
+
+	var g_slider = svg_slider
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+	;
 
 	var color = d3.scale.category20();
 
 	var area = d3.svg.area()
 		.interpolate("monotone")
 		.x(function(d) { return x(d.date); })
-    .y0(function(d) { return y(d.y0); })
-    .y1(function(d) { return y(d.y0 + d.y); });
+		.y0(function(d) { return y(d.y0); })
+		.y1(function(d) { return y(d.y0 + d.y); })
+	;
 
 	var stack = d3.layout.stack()
-    .values(function(d) { return d.values; });
+		.values(function(d) { return d.values; });
 
-		//area charts portion
-		d3.csv("./static/dashilar_data_categoryCounts_withDateSummed.csv", function(error, data2) {
-		  if (error) throw error;
+	//area charts portion
 
-		  color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
+	d3.csv("./static/dashilar_data_categoryCounts_withDateSummed.csv", function(error, data2) {
+		if (error) throw error;
 
-		  data2.forEach(function(d) {
-		    d.date = parseDate(d.date);
-		  });
+		color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
 
-		  var areaGraphs = stack(color.domain().map(function(name) {
-		    return {
-		      name: name,
-		      values: data2.map(function(d) {
-		        return {date: d.date, y: +d[name]};
-		      })
-		    };
-		  }));
+		data2.forEach(function(d) {
+			d.date = parseDate(d.date);
+		});
 
-			console.log(areaGraphs);
+		var areaGraphs = stack(color.domain().map(function(name) {
+			return {
+				name: name,
+				values: data2.map(function(d) {
+					return {date: d.date, y: +d[name]};
+				})
+			};
+		}));
 
-//		  x.domain(d3.extent(data2, function(d) { return d.date; }));
-			y.domain([0, 6500]);
+		y.domain([0, 6500]);
 
-		  var areaGraph = svg_slider.selectAll(".areaGraph")
-		      .data(areaGraphs)
-		    	.enter().append("g")
-		      .attr("class", "areaGraph");
+		var areaGraph = g_slider.selectAll(".areaGraph")
+			.data(areaGraphs)
+			.enter().append("g")
+			.attr("class", "areaGraph");
 
-		  areaGraph.append("path")
-		      .attr("class", "area")
-		      .attr("d", function(d) { return area(d.values); })
-		      .style("fill", function(d) { return colors.Spectral[7][d.name]; });
-
-	//	  areaGraph.append("text")
-	//	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-	//	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
-	//	      .attr("x", -6)
-	//	      .attr("dy", ".35em")
-	//	      .text(function(d) { return d.name; });
-
-	//	  svg.append("g")
-	//	      .attr("class", "x axis")
-	//	      .attr("transform", "translate(0," + height + ")")
-	//	      .call(xAxis);
-
-	//	  svg.append("g")
-	//	      .attr("class", "y axis")
-	//	      .call(yAxis);
+		areaGraph.append("path")
+		  .attr("class", "area")
+		  .attr("d", function(d) { return area(d.values); })
+		  .style("fill", function(d) { return colors.Spectral[7][d.name]; });
 		});
 
 
-	svg_slider.append("rect")
-	    .attr("class", "grid-background")
-	    .attr("width", width)
-	    .attr("height", height);
+	var slider_rec = g_slider.append("rect")
+		.attr("class", "grid-background")
+		// .attr("width", width)
+		.attr("height", height);
 
-	svg_slider.append("g")
-	    .attr("class", "x grid")
-	    .attr("transform", "translate(0," + height + ")")
-	    .call(d3.svg.axis()
-	        .scale(x)
-	        .orient("bottom")
-	        .ticks(d3.time.thursday)
-	        .tickSize(-height)
-	        .tickFormat(""));
+	var slider_grid = g_slider.append("g")
+		.attr("class", "x grid")
+		.attr("transform", "translate(0," + height + ")")
+		// .call(d3.svg.axis()
+		// 	.scale(x)
+		// 	.orient("bottom")
+		// 	.ticks(d3.time.thursday)
+		// 	.tickSize(-height)
+		// 	.tickFormat(""))
+	;
 
-	svg_slider.append("g")
-	    .attr("class", "x axis")
-			.on("click", function(){
-				svg_slider.select(".brush")
-					.transition()
-					.call(brush.extent([parseDate('01-01-2015'), parseDate('12-30-2015')]));
-					extent2 = [0,52];
-					console.log(extent2);
-					updateMarkersBySlider(extent2);
-				})
-	    .attr("transform", "translate(0," + height + ")")
-	    .call(d3.svg.axis()
-	      .scale(x)
-	      .orient("bottom")
-	      .ticks(d3.time.months)
-				.tickFormat(d3.time.format("%b"))
-	      .tickPadding(0))
-		  .selectAll("text")
-		    .attr("x", 6)
-		    .style("text-anchor", null);
+	var slider_axis = g_slider.append("g")
+		.attr("class", "x axis")
+		.on("click", function(){
+			svg_slider.select(".brush")
+				.transition()
+				.call(brush.extent([parseDate('01-01-2015'), parseDate('12-30-2015')]));
+				extent2 = [0,52];
+				// console.log(extent2);
+				updateMarkersBySlider(extent2);
+			})
+		.attr("transform", "translate(0," + height + ")")
+		// .call(d3.svg.axis()
+		// 	.scale(x)
+		// 	.orient("bottom")
+		// 	.ticks(d3.time.months)
+		// 	.tickFormat(d3.time.format("%b"))
+		// 	.tickPadding(0))
+	;
 
-	var gBrush = svg_slider.append("g")
-	    .attr("class", "brush")
-	    .call(brush)
-	    .call(brush.event);
+	slider_axis.selectAll("text")
+		.attr("x", 6)
+		.style("text-anchor", null);
+
+	var gBrush = g_slider.append("g")
+		.attr("class", "brush")
+		.call(brush)
+		.call(brush.event)
+	;
 
 	gBrush.selectAll("rect")
-	    .attr("height", height);
+		.attr("height", height);
+
+
+	d3.select(window).on('resize', resize); 
+	resize();
+
+	function resize(){
+		width = $('.slider').width()-(margin.left+margin.right);
+		svg_slider.attr("width", width);
+
+		x.range([0, width]);
+
+		slider_rec.attr("width", width);
+
+		slider_grid.call(d3.svg.axis()
+			.scale(x)
+			.orient("bottom")
+			.ticks(d3.time.thursday)
+			.tickSize(-height)
+			.tickFormat("")
+		);
+
+		slider_axis.call(d3.svg.axis()
+			.scale(x)
+			.orient("bottom")
+			.ticks(d3.time.months)
+			.tickFormat(d3.time.format("%b"))
+			.tickPadding(0)
+		);
+
+		gBrush.call(brush)
+			.call(brush.event)
+		;
+
+		g_slider.selectAll(".area")
+			.attr("d", function(d) { return area(d.values); })
+		;
+	}
+
 }
 
 function brushended() {
   if (!d3.event.sourceEvent) return; // only transition after input
   var extent0 = brush.extent(),
-      extent1 = extent0.map(d3.time.thursday.round);
+	  extent1 = extent0.map(d3.time.thursday.round);
 
   // if empty when rounded, use floor & ceil instead
   if (extent1[0] >= extent1[1]) {
-    extent1[0] = d3.time.thursday.floor(extent0[0]);
-    extent1[1] = d3.time.thursday.ceil(extent0[1]);
+	extent1[0] = d3.time.thursday.floor(extent0[0]);
+	extent1[1] = d3.time.thursday.ceil(extent0[1]);
   }
 
   d3.select(this).transition()
-      .call(brush.extent(extent1))
-      .call(brush.event);
+	  .call(brush.extent(extent1))
+	  .call(brush.event);
 
 	var extent2 = (extent1.map(function (d) {return Math.floor(timeFormat(d)/7)}));
 
@@ -285,7 +320,7 @@ function rect_getProperty(property, d, weekIndex){
 			for (var i = 0; i < subset.length; i++) {
 				sum += parseInt(subset[i]);
 			}
-			console.log(sum);
+			// console.log(sum);
 			return Math.pow(sum,sizeFactor) * sizeMultiplier + sizeMin;
 		}
 	}
@@ -349,7 +384,7 @@ function toggleSemantic(){
 		var option1 = $('.tt-input.content').typeahead('val');
 		var option2 = $('.tt-input.context').typeahead('val');
 		var option3 = $('.tt-input.insight').typeahead('val');
-		console.log(option1, option2, option3)
+		// console.log(option1, option2, option3)
 
 		if (option1 == "business popularity" && option2 == "Dashilar") {
 			$(".desktop").css('display', 'inline');
@@ -420,12 +455,12 @@ function toggleMap(){
 var keys = {};
 
 $(document).keydown(function (e) {
-    keys[e.which] = true;
-    checkKeys(e);
+	keys[e.which] = true;
+	checkKeys(e);
 });
 
 $(document).keyup(function (e) {
-    delete keys[e.which];
+	delete keys[e.which];
 });
 
 function checkKeys(e) {
@@ -464,7 +499,7 @@ function updateData(){
 		//create placeholder marker geometry and bind it to data
 		var markers = g.selectAll("rect").data(data.features);
 
-		console.log(data);
+		// console.log(data);
 
 		markers.enter()
 			.append("rect")
@@ -519,20 +554,20 @@ function updateData(){
 
 var substringMatcher = function(strs) {
   return function findMatches(q, cb) {
-    var matches, substringRegex;
-    // an array that will be populated with substring matches
-    matches = [];
-    // regex used to determine if a string contains the substring `q`
-    substrRegex = new RegExp(q, 'i');
-    // iterate through the pool of strings and for any string that
-    // contains the substring `q`, add it to the `matches` array
-    $.each(strs, function(i, str) {
-      if (substrRegex.test(str)) {
-        matches.push(str);
-      }
-    });
+	var matches, substringRegex;
+	// an array that will be populated with substring matches
+	matches = [];
+	// regex used to determine if a string contains the substring `q`
+	substrRegex = new RegExp(q, 'i');
+	// iterate through the pool of strings and for any string that
+	// contains the substring `q`, add it to the `matches` array
+	$.each(strs, function(i, str) {
+	  if (substrRegex.test(str)) {
+		matches.push(str);
+	  }
+	});
 
-    cb(matches);
+	cb(matches);
   };
 };
 
