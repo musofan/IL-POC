@@ -129,7 +129,7 @@ function makeSlider(){
 			.x(function(d) { return x(d.date);})
 			.y(function(d) { return y(d.y0+d.y); });
 
-		//area charts portion
+		//CSV function generates charts and gridlines
 		d3.csv("./static/dashilar_data_categoryCounts_withDate.csv", function(error, data2) {
 		  if (error) throw error;
 
@@ -147,53 +147,51 @@ function makeSlider(){
 		      })
 		    };
 		  }));
-
 			console.log(areaGraphs);
 
-//		  x.domain(d3.extent(data2, function(d) { return d.date; }));
 			y.domain([0, 50]);
 
 			svg_slider.append("rect")
-					    .attr("class", "grid-background")
-					    .attr("width", width)
-					    .attr("height", height);
+			    .attr("class", "grid-background")
+			    .attr("width", width)
+			    .attr("height", height);
 
 			var areaGraph = svg_slider.selectAll(".areaGraph")
 		      .data(areaGraphs)
 		    	.enter().append("g")
 						.attr("class", "areaGraph");
 
-			areaGraph.append("path")
-		      .attr("class", "area")
-		      .attr("d", function(d) { return area(d.values); })
-		      .style("fill", function(d) { return colors.Spectral[7][d.name]; });
-
 			var areaGraphLine = svg_slider.selectAll(".areaGraphLine")
 							.data(areaGraphs)
 							.enter().append("g")
 								.attr("class", "areaGraphLine");
 
-		areaGraphLine.append("path")
-							.attr("class", "line")
-							.attr("d", function(d) { return line(d.values); })
-							.style("stroke", function(d) { return colors.Spectral[7][d.name]; });
-//							.style("stroke", "white");
+			areaGraph.append("path")
+		      .attr("class", "area")
+		      .attr("d", function(d) { return area(d.values); })
+		      .style("fill", function(d) { return colors.Spectral[7][d.name]; });
 
-	//	  areaGraph.append("text")
-	//	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-	//	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
-	//	      .attr("x", -6)
-	//	      .attr("dy", ".35em")
-	//	      .text(function(d) { return d.name; });
+			areaGraphLine.append("path")
+						.attr("class", "line")
+						.attr("d", function(d) { return line(d.values); })
+						.style("stroke", function(d) { return colors.Spectral[7][d.name]; });
+//					.style("stroke", "white");
 
-	//	  svg.append("g")
-	//	      .attr("class", "x axis")
-	//	      .attr("transform", "translate(0," + height + ")")
-	//	      .call(xAxis);
+//	  areaGraph.append("text")
+//	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+//	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+//	      .attr("x", -6)
+//	      .attr("dy", ".35em")
+//	      .text(function(d) { return d.name; });
 
-	//	  svg.append("g")
-	//	      .attr("class", "y axis")
-	//	      .call(yAxis);
+//	  svg.append("g")
+//	      .attr("class", "x axis")
+//	      .attr("transform", "translate(0," + height + ")")
+//	      .call(xAxis);
+
+//	  svg.append("g")
+//	      .attr("class", "y axis")
+//	      .call(yAxis);
 
 	svg_slider.append("g")
 	    .attr("class", "x grid")
@@ -234,7 +232,7 @@ function makeSlider(){
 	gBrush.selectAll("rect")
 	    .attr("height", height);
 	});
-	}
+}
 
 function brushended() {
   if (!d3.event.sourceEvent) return; // only transition after input

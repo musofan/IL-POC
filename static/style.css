@@ -119,8 +119,7 @@ em{
 }
 
 .areaGraph {
-  fill-opacity: .60;
-	stroke-opacity: 1;
+  fill-opacity: .5;
 }
 
 .areaGraphLine {
