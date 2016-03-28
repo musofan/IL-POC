@@ -16,6 +16,8 @@ from Queue import Queue
 #from sklearn import preprocessing
 #from sklearn import svm
 
+import random
+
 import numpy as np
 import os
 
@@ -62,6 +64,70 @@ def normalizeArray(inputArray):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/getPrediction/")
+def getPrediction():
+
+	fileName = "dashilar_data.txt"
+
+	with open(currentDirectory +  "analysis//" + fileName, 'r') as f:
+		records = f.readlines()
+		records = [x.strip() for x in records]
+		titles = records.pop(0).split(';')
+	print titles
+
+	print len(records)
+
+	# iterate through data to find minimum and maximum price
+	minCount = 1000000000
+	maxCount = 0
+
+	counts = []
+
+	for record in records:
+		features = record.split(';')
+		count = int(features[titles.index('count')])
+
+		counts.append(count)
+
+		if count > maxCount:
+			maxCount = count
+		if count < minCount:
+			minCount = count
+
+	print minCount
+	print maxCount
+
+	sorted_order = [x for (y,x) in sorted(zip(counts,range(len(counts))), key=lambda pair: pair[0])]
+
+	for i in sorted_order:
+		print counts[i]
+
+	output = {"type":"FeatureCollection","features":[]}
+
+	for i, record in enumerate(records):
+		features = record.split(';')
+		point = {"type":"Feature","properties":{},"geometry":{"type":"Point"}}
+		point["id"] = features[titles.index('ID')]
+		point["properties"]["name"] = features[titles.index('title')]
+		point["properties"]["cat"] = features[titles.index('cat')]
+		point["properties"]["count"] = features[titles.index('count')]
+		point["properties"]["countNorm"] = remap(features[titles.index('count')], minCount, maxCount, 0, 1)
+		point["properties"]["order"] = sorted_order.index(i)
+
+		count = int(features[titles.index('count')])
+
+		dummyPrediction = [count] * 20
+		dummyPrediction = [x + ((count/10+10) * (.5-random.random())) for x in dummyPrediction]
+
+		point["properties"]["prediction"] = dummyPrediction
+		point["geometry"]["coordinates"] = [float(features[titles.index('lat')]), float(features[titles.index('lng')])]
+
+		output["features"].append(point)
+
+	return json.dumps(output)
+
 
 @app.route("/getData/")
 def getData():

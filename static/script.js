@@ -23,6 +23,7 @@ var tooltip_title = d3.select("#title");
 var tooltip_detail = d3.select("#detail");
 
 var topLeft = [0,0], bottomRight = [0,0];
+var buffer = 50;
 
 
 // helper function to retrieve query string
@@ -78,7 +79,7 @@ svg_overlay.append("rect")
 
 
 // markers
-var svg = d3.select(map.getPanes().overlayPane).append("svg");
+var svg = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "marker_svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 //slider and area charts
@@ -90,7 +91,7 @@ function makeSlider(){
 
 	var div_slider = d3.select(".slider");
 
-	var margin = {top: 10, right: 10, bottom: 20, left: 10};
+	var margin = {top: 10, right: 0, bottom: 20, left: 10};
 
 	var width = $('.slider').width()-(margin.left+margin.right);
 	var height = $('.slider').height()-(margin.top+margin.bottom);
@@ -186,18 +187,11 @@ function makeSlider(){
 
 	var slider_rec = g_slider.append("rect")
 		.attr("class", "grid-background")
-		// .attr("width", width)
 		.attr("height", height);
 
 	var slider_grid = g_slider.append("g")
 		.attr("class", "x grid")
 		.attr("transform", "translate(0," + height + ")")
-		// .call(d3.svg.axis()
-		// 	.scale(x)
-		// 	.orient("bottom")
-		// 	.ticks(d3.time.thursday)
-		// 	.tickSize(-height)
-		// 	.tickFormat(""))
 	;
 
 	var slider_axis = g_slider.append("g")
@@ -207,16 +201,9 @@ function makeSlider(){
 				.transition()
 				.call(brush.extent([parseDate('01-01-2015'), parseDate('12-30-2015')]));
 				extent2 = [0,52];
-				// console.log(extent2);
 				updateMarkersBySlider(extent2);
 			})
 		.attr("transform", "translate(0," + height + ")")
-		// .call(d3.svg.axis()
-		// 	.scale(x)
-		// 	.orient("bottom")
-		// 	.ticks(d3.time.months)
-		// 	.tickFormat(d3.time.format("%b"))
-		// 	.tickPadding(0))
 	;
 
 	slider_axis.selectAll("text")
@@ -293,8 +280,6 @@ function brushended() {
 	var extent2 = (extent1.map(function (d) {return Math.floor(timeFormat(d)/7)}));
 
 	updateMarkersBySlider(extent2);
-
-	console.log(extent2);
 }
 
 var semanticActive = false; //toggle to active semantic UI walkthrough
@@ -304,7 +289,7 @@ if (semanticActive == false){
 	$(".semantic").fadeOut();
 	semanticVisible = false;
 
-	updateData();
+	getData();
 	makeSlider();
 
 }
@@ -335,23 +320,33 @@ function rect_getProperty(property, d, weekIndex){
 			for (var i = 0; i < subset.length; i++) {
 				sum += parseInt(subset[i]);
 			}
-			// console.log(sum);
 			return Math.pow(sum,sizeFactor) * sizeMultiplier + sizeMin;
 		}
 	}
 
-	if (property == "position"){
+	if (property == "prediction"){
+
+		max = Math.max.apply(null,d.properties.prediction);
+		min = Math.min.apply(null,d.properties.prediction);
+		med = (max + min) / 2;
+		return [max-min, med]
+	}
+
+	if (property == "position_exploration"){
 		var radius = rect_getProperty("radius", d, weekIndex);
 		var x = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - radius/2;
 		var y = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y - radius/2;
 		return [x, y]
 	}
 
-	if (property == "popularity"){
-		var radius = rect_getProperty("radius", d, weekIndex);
-		var x = projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x - barWidth/2;
-		var val = Math.pow(d.properties.countNorm,sizeFactor);
-		var y = bottomRight[1] - (val * (bottomRight[1]-topLeft[1])) - radius/2;
+	if (property == "position_insight"){
+		var med = rect_getProperty("prediction", d, weekIndex)[1];
+
+		var w = $('#map').width()
+		var h = $('#map').height()
+
+		var x = d.properties.order * (w/180);
+		var y = h - (med/400 * h) - 20;
 		return [x, y]
 	}
 }
@@ -365,23 +360,25 @@ function updateMarkers(duration){
 		g.selectAll("rect")
 			.transition()
 			.duration(duration)
-			.attr("x", function(d) { return rect_getProperty("popularity", d, weekIndex)[0]; })
-			.attr("y", function(d) { return rect_getProperty("popularity", d, weekIndex)[1]; })
+			.attr("x", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0]; })
+			.attr("y", function(d) { return rect_getProperty("position_insight", d, weekIndex)[1]; })
 			.attr("rx",0)
 			.attr("ry",0)
 			.attr("width", barWidth)
-			.attr("height", function(d) { return rect_getProperty("radius", d, weekIndex); })
+			.attr("height", function(d) { return rect_getProperty("prediction", d, weekIndex)[0]; })
+			.attr("fill-opacity", 0.2)
 		;
 	} else {
 		g.selectAll("rect")
 			.transition()
 			.duration(duration)
-			.attr("x", function(d) { return rect_getProperty("position", d, weekIndex)[0];  })
-			.attr("y", function(d) { return rect_getProperty("position", d, weekIndex)[1];  })
+			.attr("x", function(d) { return rect_getProperty("position_exploration", d, weekIndex)[0];  })
+			.attr("y", function(d) { return rect_getProperty("position_exploration", d, weekIndex)[1];  })
 			.attr("height", function(d) { return rect_getProperty("radius", d, weekIndex); })
 			.attr("width", function(d) { return rect_getProperty("radius", d, weekIndex); })
 			.attr("rx", function(d) { return rect_getProperty("radius", d, weekIndex) / 2; })
 			.attr("ry", function(d) { return rect_getProperty("radius", d, weekIndex) / 2; })
+			.attr("fill-opacity", 0.8)
 		;
 	}
 }
@@ -401,19 +398,26 @@ function toggleSemantic(){
 		var option3 = $('.tt-input.insight').typeahead('val');
 		// console.log(option1, option2, option3)
 
-		if (option1 == "business popularity" && option2 == "Dashilar") {
-			$(".desktop").css('display', 'inline');
-			$(".semantic").fadeOut();
-			semanticVisible = false;
+		// toggle for real scenario
+		// if (option1 == "business popularity" && option2 == "Dashilar") {
+		// 	$(".desktop").css('display', 'inline');
+		// 	$(".semantic").fadeOut();
+		// 	semanticVisible = false;
 
-			if (option3 == "investment in BJDW") {
-				toggleMap();
-			}
-			if ($("#option3").css("display") == "none"){
-				updateData();
-				makeSlider();
-			}
-		}
+		// 	if (option3 == "investment in BJDW") {
+		// 		toggleMap();
+		// 	}
+		// 	if ($("#option3").css("display") == "none"){
+		// 		updateData();
+		// 		makeSlider();
+		// 	}
+		// }
+
+		// toggle for development
+		$(".desktop").css('display', 'inline');
+		$(".semantic").fadeOut();
+		semanticVisible = false;
+		toggleMap();
 
 
 	} else {
@@ -445,6 +449,11 @@ function toggleMap(){
 		map.keyboard.disable();
 		if (map.tap) map.tap.disable();
 		document.getElementById('map').style.cursor='default';
+
+		$(".leaflet-control-container").fadeOut();
+
+		updatePrediction();
+
 	} else {
 		$(".map_overlay").fadeOut();
 		// svg_overlay.attr("visibility", "hidden");
@@ -458,40 +467,16 @@ function toggleMap(){
 		map.keyboard.enable();
 		if (map.tap) map.tap.enable();
 		document.getElementById('map').style.cursor='grab';
+
+		$(".leaflet-control-container").fadeIn();
+
+		updateData();
+
 	}
-	updateMarkers(duration = 1000);
 }
 
 
 
-
-//keyboard handling
-//http://stackoverflow.com/questions/4954403/can-jquery-keypress-detect-more-than-one-key-at-the-same-time
-var keys = {};
-
-$(document).keydown(function (e) {
-	keys[e.which] = true;
-	checkKeys(e);
-});
-
-$(document).keyup(function (e) {
-	delete keys[e.which];
-});
-
-function checkKeys(e) {
-	// console.log(e.which)
-	//if both ctrl and space is pressed, toggle semantic interface
-	// if (keys.hasOwnProperty(17) && keys.hasOwnProperty(32)){
-	// 	toggleSemantic();
-	// }
-	if (keys.hasOwnProperty(13)){
-		toggleSemantic();
-	}
-	if (keys.hasOwnProperty(16) && keys.hasOwnProperty(32)){
-		toggleMap();
-	}
-
-}
 
 
 function projectPoint(lat, lng) {
@@ -506,7 +491,7 @@ function projectStream(lat, lng) {
 var transform = d3.geo.transform({point: projectStream});
 var path = d3.geo.path().projection(transform);
 
-function updateData(){
+function getData(){
 
 	request = "/getData"
 	d3.json(request, function(data) {
@@ -546,15 +531,8 @@ function updateData(){
 			topLeft = bounds[0];
 			bottomRight = bounds[1];
 
-			var buffer = 50;
-
 			// reposition the SVG to cover the features.
-			svg .attr("width", bottomRight[0] - topLeft[0] + (buffer * 2))
-				.attr("height", bottomRight[1] - topLeft[1] + (buffer * 2))
-				.style("left", (topLeft[0] - buffer) + "px")
-				.style("top", (topLeft[1] - buffer) + "px");
-
-			g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
+			repositionSVG();
 
 			updateMarkers(duration = 0);
 
@@ -562,7 +540,80 @@ function updateData(){
 	});
 };
 
-// updateData();
+function repositionSVG(){
+	svg .attr("width", bottomRight[0] - topLeft[0] + (buffer * 2))
+		.attr("height", bottomRight[1] - topLeft[1] + (buffer * 2))
+		.style("left", (topLeft[0] - buffer) + "px")
+		.style("top", (topLeft[1] - buffer) + "px");
+
+	g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
+}
+
+function updateData(){
+
+	request = "/getData"
+	d3.json(request, function(data) {
+		// console.log(data);
+
+		g.selectAll("rect").data(data.features);
+
+		updateMarkers(duration = 1000);
+		
+		repositionSVG();
+
+	});
+}
+
+function updatePrediction(){
+
+	request = "/getPrediction"
+	d3.json(request, function(data) {
+		console.log(data.features[0]);
+
+		g.selectAll("rect").data(data.features);
+
+		svg .attr("width", $('#map').width())
+				.attr("height", $('#map').height())
+				.style("left", "0px")
+				.style("top", "0px");
+		g   .attr("transform", "translate(0,0)");
+
+		updateMarkers(duration = 1000);
+
+
+
+	});
+
+}
+
+
+//keyboard handling
+//http://stackoverflow.com/questions/4954403/can-jquery-keypress-detect-more-than-one-key-at-the-same-time
+var keys = {};
+
+$(document).keydown(function (e) {
+	keys[e.which] = true;
+	checkKeys(e);
+});
+
+$(document).keyup(function (e) {
+	delete keys[e.which];
+});
+
+function checkKeys(e) {
+	// console.log(e.which)
+	//if both ctrl and space is pressed, toggle semantic interface
+	// if (keys.hasOwnProperty(17) && keys.hasOwnProperty(32)){
+	// 	toggleSemantic();
+	// }
+	if (keys.hasOwnProperty(13)){
+		toggleSemantic();
+	}
+	if (keys.hasOwnProperty(16) && keys.hasOwnProperty(32)){
+		toggleMap();
+	}
+
+}
 
 
 //semantic UI autocomplete
