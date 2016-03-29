@@ -81,6 +81,10 @@ svg_overlay.append("rect")
 // markers
 var svg = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "marker_svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
+// new svg for lines
+var svg_line = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "line_svg");
+var l = svg_line.append("g").attr("class", "insightline");
+
 
 //slider and area charts
 var brush
@@ -341,13 +345,16 @@ function rect_getProperty(property, d, weekIndex){
 
 	if (property == "position_insight"){
 		var med = rect_getProperty("prediction", d, weekIndex)[1];
-
-		var w = $('#map').width()
-		var h = $('#map').height()
-
-		var x = d.properties.order * (w/180);
-		var y = h - (med/400 * h) - 20;
-		return [x, y]
+		var len = rect_getProperty("prediction", d, weekIndex)[0];
+		//add a margin to the insight view
+		var margin = {top: 10, right: 10, bottom: 20, left: 10};
+		var w = $('#map').width()-(margin.left+margin.right);
+		var h = $('#map').height()-(margin.top+margin.bottom);
+		var x = d.properties.order * (w/180)+ margin.left;
+		var y = h - (med/364 * h) - (len/2) + margin.top;
+		var z = y + (len/2);
+		barWidth = w/180;
+		return [x, y, z]
 	}
 }
 
@@ -368,6 +375,16 @@ function updateMarkers(duration){
 			.attr("height", function(d) { return rect_getProperty("prediction", d, weekIndex)[0]; })
 			.attr("fill-opacity", 0.2)
 		;
+		//add line to the insight view
+		l.selectAll("line")
+			// .transition()
+			// .duration(duration)
+			.attr("x1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0]; })
+			.attr("y1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[2]; })
+			.attr("x2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0] + barWidth; })
+			.attr("y2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[2]; })
+			.attr("fill-opacity", 0.8)
+		;
 	} else {
 		g.selectAll("rect")
 			.transition()
@@ -382,6 +399,8 @@ function updateMarkers(duration){
 		;
 	}
 }
+
+
 
 //adjusts markers by slider
 function updateMarkersBySlider(weeks){
@@ -519,6 +538,16 @@ function getData(){
 			.attr("fill", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;
 
+		//create placeholder line geometry and bind it to data
+		var lines = l.selectAll("line").data(data.features);
+		// console.log(data);
+		lines.enter()
+			.append("line")
+			.attr("class", "lineinsight")
+			.attr("stroke-width", 2)
+			.attr("stroke", function(d) { return colors.Spectral[7][d.properties.cat]; })
+		;		
+
 		// call function to update geometry
 		update();
 		map.on("viewreset", update);
@@ -556,7 +585,7 @@ function updateData(){
 		// console.log(data);
 
 		g.selectAll("rect").data(data.features);
-
+		l.selectAll("line").data(data.features);
 		updateMarkers(duration = 1000);
 		
 		repositionSVG();
@@ -579,6 +608,14 @@ function updatePrediction(){
 		g   .attr("transform", "translate(0,0)");
 
 		updateMarkers(duration = 1000);
+
+		l.selectAll("line").data(data.features);
+
+		svg_line .attr("width", $('#map').width())
+				.attr("height", $('#map').height())
+				.style("left", "0px")
+				.style("top", "0px");
+		l   .attr("transform", "translate(0,0)");
 
 
 
