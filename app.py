@@ -75,9 +75,6 @@ def getPrediction():
 		records = f.readlines()
 		records = [x.strip() for x in records]
 		titles = records.pop(0).split(';')
-	print titles
-
-	print len(records)
 
 	# iterate through data to find minimum and maximum price
 	minCount = 1000000000
@@ -96,13 +93,9 @@ def getPrediction():
 		if count < minCount:
 			minCount = count
 
-	print minCount
-	print maxCount
 
 	sorted_order = [x for (y,x) in sorted(zip(counts,range(len(counts))), key=lambda pair: pair[0])]
 
-	for i in sorted_order:
-		print counts[i]
 
 	output = {"type":"FeatureCollection","features":[]}
 
@@ -125,7 +118,6 @@ def getPrediction():
 		point["geometry"]["coordinates"] = [float(features[titles.index('lat')]), float(features[titles.index('lng')])]
 
 		output["features"].append(point)
-
 	return json.dumps(output)
 
 

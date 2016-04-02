@@ -84,6 +84,7 @@ var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 // new svg for lines
 var svg_line = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "line_svg");
 var l = svg_line.append("g").attr("class", "insightline");
+var fz = svg_line.append("g").attr("class", "fuzzyline");
 
 
 //slider and area charts
@@ -353,7 +354,17 @@ function rect_getProperty(property, d, weekIndex){
 		var x = d.properties.order * (w/180)+ margin.left;
 		var y = h - (med/364 * h) - (len/2) + margin.top;
 		var z = y + (len/2);
+		//muso
+		// var fuzzy = d.properties.prediction;
+		// var k = h - (fuzzy/364 * h) - (len/2) + margin.top;
 		barWidth = w/180;
+
+		// var k = [];
+		// for (var i = 0; i < 20; i++) {
+		// 	k = h - (fuzzy/364 * h) - (len/2) + margin.top;
+		// 	console.log(fuzzy);
+		// }
+		
 		return [x, y, z]
 	}
 }
@@ -385,6 +396,20 @@ function updateMarkers(duration){
 			.attr("y2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[2]; })
 			.attr("fill-opacity", 0.8)
 		;
+
+		//adding 20 fuzzy lines muso
+		// for (var i = 0; i < 20; i++) {
+		// 	fz.selectAll("line")
+		// 		// .transition()
+		// 		// .duration(duration)
+		// 		.attr("x1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0]; })
+		// 		.attr("y1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[3][i]; })
+		// 		.attr("x2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0] + barWidth; })
+		// 		.attr("y2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[3][i]; })
+		// 		.attr("fill-opacity", 0.5)
+		// 	;	
+		// }
+
 	} else {
 		g.selectAll("rect")
 			.transition()
@@ -548,6 +573,16 @@ function getData(){
 			.attr("stroke", function(d) { return colors.Spectral[7][d.properties.cat]; })
 		;		
 
+		//create placeholder line geometry and bind it to data
+		var fzlines = fz.selectAll("line").data(data.features);
+		// console.log(data);
+		fzlines.enter()
+			.append("line")
+			.attr("class", "fzlineinsight")
+			.attr("stroke-width", 1)
+			.attr("stroke", function(d) { return colors.Spectral[7][d.properties.cat]; })
+		;	
+
 		// call function to update geometry
 		update();
 		map.on("viewreset", update);
@@ -586,6 +621,7 @@ function updateData(){
 
 		g.selectAll("rect").data(data.features);
 		l.selectAll("line").data(data.features);
+		fz.selectAll("line").data(daat.features)
 		updateMarkers(duration = 1000);
 		
 		repositionSVG();
@@ -610,13 +646,14 @@ function updatePrediction(){
 		updateMarkers(duration = 1000);
 
 		l.selectAll("line").data(data.features);
+		fz.selectAll("line").data(data.features);
 
 		svg_line .attr("width", $('#map').width())
 				.attr("height", $('#map').height())
 				.style("left", "0px")
 				.style("top", "0px");
 		l   .attr("transform", "translate(0,0)");
-
+		fz   .attr("transform", "translate(0,0)");
 
 
 	});
