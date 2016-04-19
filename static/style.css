@@ -94,14 +94,37 @@ em{
 
 
 .axis text {
-  font: 11px sans-serif;
+  font: 11 px sans-serif;
 }
 
 .axis path,
 .axis line {
   fill: none;
-  stroke: none;
+  stroke: #000;
+  stroke-width: 0.2 px;
   shape-rendering: crispEdges;
+}
+
+.y.axis line {
+  stroke: #777;
+  stroke-dasharray: 3,3;
+}
+
+.x.axis path,
+.x.axis line {
+  stroke: #ffffff;
+  stroke-width:0.2 px;
+}
+.x.axis text{
+	display: none;
+}
+
+.tick line{
+opacity: 0.2;
+}
+
+.tick text{
+font-size: 12 px;
 }
 
 .grid-background {

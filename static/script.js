@@ -14,7 +14,7 @@ var categories = {
 var sizeFactor = .2;
 var sizeMultiplier = 10;
 var sizeMin = 0;
-var barWidth = 8;
+
 
 var weekIndex = 0;
 
@@ -25,6 +25,8 @@ var tooltip_detail = d3.select("#detail");
 var topLeft = [0,0], bottomRight = [0,0];
 var buffer = 50;
 
+var marginmap = {top:30, right:20, bottom:30, left:30};
+var barWidth = ($('#map').width()-(marginmap.left + marginmap.right))/180;
 
 // helper function to retrieve query string
 // function getParameterByName(name, url) {
@@ -82,10 +84,8 @@ svg_overlay.append("rect")
 var svg = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "marker_svg");
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 // new svg for lines
-var svg_line = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "line_svg");
+var svg_line = d3.select(map.getPanes().overlayPane).append("svg").attr("id", "line_svg");
 var l = svg_line.append("g").attr("class", "insightline");
-var fz = svg_line.append("g").attr("class", "fuzzyline");
-
 
 //slider and area charts
 var brush
@@ -225,7 +225,7 @@ function makeSlider(){
 		.attr("height", height);
 
 
-	d3.select(window).on('resize', resize); 
+	d3.select(window).on('resize', resize);
 	resize();
 
 	function resize(){
@@ -348,24 +348,15 @@ function rect_getProperty(property, d, weekIndex){
 		var med = rect_getProperty("prediction", d, weekIndex)[1];
 		var len = rect_getProperty("prediction", d, weekIndex)[0];
 		//add a margin to the insight view
-		var margin = {top: 10, right: 10, bottom: 20, left: 10};
-		var w = $('#map').width()-(margin.left+margin.right);
-		var h = $('#map').height()-(margin.top+margin.bottom);
-		var x = d.properties.order * (w/180)+ margin.left;
-		var y = h - (med/364 * h) - (len/2) + margin.top;
+		var w = $('#map').width()-(marginmap.left+marginmap.right);
+		var h = $('#map').height()-(marginmap.top+marginmap.bottom);
+		var x = d.properties.order * (w/180)+ marginmap.left;
+		var y = h - (med/364 * h) - (len/2) + marginmap.top;
 		var z = y + (len/2);
-		//muso
-		// var fuzzy = d.properties.prediction;
-		// var k = h - (fuzzy/364 * h) - (len/2) + margin.top;
-		barWidth = w/180;
+		var k = x + w/180;
 
-		// var k = [];
-		// for (var i = 0; i < 20; i++) {
-		// 	k = h - (fuzzy/364 * h) - (len/2) + margin.top;
-		// 	console.log(fuzzy);
-		// }
-		
-		return [x, y, z]
+
+		return [x, y, z,k]
 	}
 }
 
@@ -387,28 +378,8 @@ function updateMarkers(duration){
 			.attr("fill-opacity", 0.2)
 		;
 		//add line to the insight view
-		l.selectAll("line")
-			// .transition()
-			// .duration(duration)
-			.attr("x1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0]; })
-			.attr("y1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[2]; })
-			.attr("x2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0] + barWidth; })
-			.attr("y2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[2]; })
-			.attr("fill-opacity", 0.8)
-		;
-
-		//adding 20 fuzzy lines muso
-		// for (var i = 0; i < 20; i++) {
-		// 	fz.selectAll("line")
-		// 		// .transition()
-		// 		// .duration(duration)
-		// 		.attr("x1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0]; })
-		// 		.attr("y1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[3][i]; })
-		// 		.attr("x2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0] + barWidth; })
-		// 		.attr("y2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[3][i]; })
-		// 		.attr("fill-opacity", 0.5)
-		// 	;	
-		// }
+		d3.select("#line_svg").style("opacity", 1);
+		makeInsight();
 
 	} else {
 		g.selectAll("rect")
@@ -422,9 +393,105 @@ function updateMarkers(duration){
 			.attr("ry", function(d) { return rect_getProperty("radius", d, weekIndex) / 2; })
 			.attr("fill-opacity", 0.8)
 		;
+
+		d3.select("#line_svg").style("opacity", 0);
 	}
 }
 
+
+function makeInsight(d) {
+
+//getdata
+	console.log("here");
+	// console.log(d.properties);
+
+	var width = $('#map').width()-(marginmap.left+marginmap.right);
+	var height = $('#map').height()-(marginmap.top+marginmap.bottom);
+
+	var axiscount = [];
+
+		for (var i = 0; i < tempdata.length; i++) {
+			axiscount.push (parseInt(tempdata[i].properties.count));
+		}
+
+ 
+
+	 var max = 0
+	 var min = 100000;
+	 var len = axiscount.length;
+
+	 for (var i = 0 ; i < len; i++) {
+	 	if (axiscount[i]>max){
+	 		max = axiscount[i];
+	 	}
+	  	if (axiscount[i]<min){
+	 		min = axiscount[i];
+	 	}	
+	 }
+
+
+console.log(axiscount,max,min);
+
+
+
+
+var xScale = d3.scale.linear()
+    .domain([0, len])
+    .range([0, width]);
+
+var yScale = d3.scale.linear()
+    .domain([0,max])
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .ticks(len)
+    .orient("bottom")
+    .innerTickSize(height)
+    .outerTickSize(0)
+    .tickPadding(10)
+    ;
+
+var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .ticks(15)
+    .orient("left")
+    .innerTickSize(-width)
+    .outerTickSize(10)
+    .tickPadding(5)
+    ;
+
+
+  var drawxis = svg_line.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(" + marginmap.left + "," + marginmap.top + ")")
+	      .call(xAxis)
+	      ;
+
+  var drawyis = svg_line
+  		.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis)
+	      .attr("transform", "translate(" + marginmap.left + "," + marginmap.top + ")")
+	    .append("text")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 10)
+	      .attr("dy", ".71em")
+	      .style("text-anchor", "end")
+	      .text("Popularity")
+	      ;
+
+	l.selectAll("line")
+		.transition()
+		.duration(1000)
+		.attr("x1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[0]; })
+		.attr("y1", function(d) { return rect_getProperty("position_insight", d, weekIndex)[2]; })
+		.attr("x2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[3]; })
+		.attr("y2", function(d) { return rect_getProperty("position_insight", d, weekIndex)[2]; })
+		.attr("fill-opacity", 0.8)
+	;
+
+}
 
 
 //adjusts markers by slider
@@ -534,16 +601,15 @@ function projectStream(lat, lng) {
 
 var transform = d3.geo.transform({point: projectStream});
 var path = d3.geo.path().projection(transform);
+var tempdata;
 
-function getData(){
+function getData() {
 
 	request = "/getData"
 	d3.json(request, function(data) {
 
 		//create placeholder marker geometry and bind it to data
 		var markers = g.selectAll("rect").data(data.features);
-
-		// console.log(data);
 
 		markers.enter()
 			.append("rect")
@@ -552,7 +618,7 @@ function getData(){
 				tooltip_title.text(d.properties.name);
 				tooltip_detail.text(categories[d.properties.cat]);
 			})
-			.on("mousemove", function(){
+			.on("mousemove", function() {
 				tooltip.style("top", (d3.event.pageY-10)+"px")
 				tooltip.style("left",(d3.event.pageX+10)+"px");
 			})
@@ -571,17 +637,7 @@ function getData(){
 			.attr("class", "lineinsight")
 			.attr("stroke-width", 2)
 			.attr("stroke", function(d) { return colors.Spectral[7][d.properties.cat]; })
-		;		
-
-		//create placeholder line geometry and bind it to data
-		var fzlines = fz.selectAll("line").data(data.features);
-		// console.log(data);
-		fzlines.enter()
-			.append("line")
-			.attr("class", "fzlineinsight")
-			.attr("stroke-width", 1)
-			.attr("stroke", function(d) { return colors.Spectral[7][d.properties.cat]; })
-		;	
+		;
 
 		// call function to update geometry
 		update();
@@ -599,7 +655,6 @@ function getData(){
 			repositionSVG();
 
 			updateMarkers(duration = 0);
-
 		};
 	});
 };
@@ -621,9 +676,8 @@ function updateData(){
 
 		g.selectAll("rect").data(data.features);
 		l.selectAll("line").data(data.features);
-		fz.selectAll("line").data(daat.features)
 		updateMarkers(duration = 1000);
-		
+
 		repositionSVG();
 
 	});
@@ -633,29 +687,27 @@ function updatePrediction(){
 
 	request = "/getPrediction"
 	d3.json(request, function(data) {
-		console.log(data.features[0]);
-
+		tempdata = data.features;
 		g.selectAll("rect").data(data.features);
 
 		svg .attr("width", $('#map').width())
 				.attr("height", $('#map').height())
 				.style("left", "0px")
 				.style("top", "0px");
+		// g   .attr("transform", "translate(" + marginmap.left + "," + marginmap.top + ")");
 		g   .attr("transform", "translate(0,0)");
 
 		updateMarkers(duration = 1000);
 
 		l.selectAll("line").data(data.features);
-		fz.selectAll("line").data(data.features);
 
 		svg_line .attr("width", $('#map').width())
 				.attr("height", $('#map').height())
 				.style("left", "0px")
 				.style("top", "0px");
 		l   .attr("transform", "translate(0,0)");
-		fz   .attr("transform", "translate(0,0)");
 
-
+    makeInsight(tempdata);
 	});
 
 }
