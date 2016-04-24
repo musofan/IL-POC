@@ -76,6 +76,7 @@ def getPrediction():
 		records = [x.strip() for x in records]
 		titles = records.pop(0).split(';')
 
+
 	# iterate through data to find minimum and maximum price
 	minCount = 1000000000
 	maxCount = 0
@@ -86,13 +87,21 @@ def getPrediction():
 		features = record.split(';')
 		count = int(features[titles.index('count')])
 
-		counts.append(count)
+		if count != 0:
+	    		counts.append(count)
+		else:
+					pass
+
 
 		if count > maxCount:
 			maxCount = count
 		if count < minCount:
 			minCount = count
 
+    	# counts = [x for x in counts if x != 0]
+
+	print len(counts)
+	# print len(counts)
 
 	sorted_order = [x for (y,x) in sorted(zip(counts,range(len(counts))), key=lambda pair: pair[0])]
 
@@ -107,17 +116,26 @@ def getPrediction():
 		point["properties"]["cat"] = features[titles.index('cat')]
 		point["properties"]["count"] = features[titles.index('count')]
 		point["properties"]["countNorm"] = remap(features[titles.index('count')], minCount, maxCount, 0, 1)
-		point["properties"]["order"] = sorted_order.index(i)
+		point["properties"]["order"] = 1
 
 		count = int(features[titles.index('count')])
 
-		dummyPrediction = [count] * 20
-		dummyPrediction = [x + ((count/10+10) * (.5-random.random())) for x in dummyPrediction]
+		if count != 0:
+			dummyPrediction = [count] * 20
+			dummyPrediction = [x + ((count/10+10) * (.5-random.random())) for x in dummyPrediction]
+			point["properties"]["prediction"] = dummyPrediction
+			point["geometry"]["coordinates"] = [float(features[titles.index('lat')]), float(features[titles.index('lng')])]
+			output["features"].append(point)
+		else:
+			pass
 
-		point["properties"]["prediction"] = dummyPrediction
-		point["geometry"]["coordinates"] = [float(features[titles.index('lat')]), float(features[titles.index('lng')])]
+	# print len(output["features"])
+	# print len(sorted_order)
 
-		output["features"].append(point)
+	for i in range(len(sorted_order)):
+		output["features"][i]["properties"]["order"] = sorted_order.index(i)
+	# print output["features"][0]
+	
 	return json.dumps(output)
 
 

@@ -15,6 +15,9 @@ var sizeFactor = .2;
 var sizeMultiplier = 10;
 var sizeMin = 0;
 
+var logFactor = 0.38;
+var logMultiplier = 30;
+
 
 var weekIndex = 0;
 
@@ -25,8 +28,10 @@ var tooltip_detail = d3.select("#detail");
 var topLeft = [0,0], bottomRight = [0,0];
 var buffer = 50;
 
-var marginmap = {top:30, right:20, bottom:30, left:30};
-var barWidth = ($('#map').width()-(marginmap.left + marginmap.right))/180;
+var marginmap = {top:30, right:100, bottom:30, left:100};
+var barWidth = ($('#map').width()-(marginmap.left + marginmap.right))/145;
+
+
 
 // helper function to retrieve query string
 // function getParameterByName(name, url) {
@@ -309,6 +314,24 @@ if (mapVisible == true){
 }
 
 
+// function remap(value, min, max, low2, high2) {
+//     var max = 0
+// 	var min = 100000;
+// 	var len = value.length;
+
+// 	 for (var i = 0 ; i < len; i++) {
+// 	 	if (value[i]>max){
+// 	 		max = value[i];
+// 	 	}
+// 	  	if (value[i]<min){
+// 	 		min = value[i];
+// 	 	}	
+// 	//  }
+// 	 for (var i = 0 ; i < len; i++) {
+// 	 	value = low2 + (high2 - low2) * (value - min) / (max - min);
+// 	 }
+// }
+
 //HELPER FUNCTIONS
 
 //properties for marker updates
@@ -333,8 +356,24 @@ function rect_getProperty(property, d, weekIndex){
 
 		max = Math.max.apply(null,d.properties.prediction);
 		min = Math.min.apply(null,d.properties.prediction);
-		med = (max + min) / 2;
+		// med = d.properties.count;
+		med = Math.pow(d.properties.count,logFactor) * logMultiplier ;
+		
+		// var sortmax = 0;
+		// var sortmin = 1000000;
+		// for (var i = 0 ; i < sortmed.length; i++) {
+		//  	if (sortmed[i]>sortmax){
+		//  		sortmax = sortmed[i];
+		//  	}
+		//   	if (sortmed[i]<sortmin){
+		//  		sortmin = sortmed[i];
+		//  	}	
+		// }
+
+		// remap(med,sortmin,sortmax,0,364);
+
 		return [max-min, med]
+
 	}
 
 	if (property == "position_exploration"){
@@ -350,7 +389,7 @@ function rect_getProperty(property, d, weekIndex){
 		//add a margin to the insight view
 		var w = $('#map').width()-(marginmap.left+marginmap.right);
 		var h = $('#map').height()-(marginmap.top+marginmap.bottom);
-		var x = d.properties.order * (w/180)+ marginmap.left;
+		var x = d.properties.order * (w/145)+ marginmap.left;
 		var y = h - (med/364 * h) - (len/2) + marginmap.top;
 		var z = y + (len/2);
 		var k = x + w/180;
@@ -409,13 +448,16 @@ function makeInsight(d) {
 	var height = $('#map').height()-(marginmap.top+marginmap.bottom);
 
 	var axiscount = [];
+	// var axiscountlog = [];
 
 		for (var i = 0; i < tempdata.length; i++) {
 			axiscount.push (parseInt(tempdata[i].properties.count));
 		}
 
- 
+	
 
+	// console.log(axiscountlog)
+ 	
 	 var max = 0
 	 var min = 100000;
 	 var len = axiscount.length;
@@ -429,8 +471,16 @@ function makeInsight(d) {
 	 	}	
 	 }
 
+// 	 var ranger = [];
+// 	 var rangerr = [];
+	
+// 	 for (var i = 0 ; i < max; i++) {
+// 	 	ranger[i] = i;
+// 	 	rangerr[i] = Math.pow(parseInt(tempdata[i].properties.count),logFactor) * logMultiplier;
+// 	 }
 
-console.log(axiscount,max,min);
+// console.log(rangerr);
+
 
 
 
@@ -707,6 +757,7 @@ function updatePrediction(){
 				.style("top", "0px");
 		l   .attr("transform", "translate(0,0)");
 
+    // console.log(tempdata.length);
     makeInsight(tempdata);
 	});
 
